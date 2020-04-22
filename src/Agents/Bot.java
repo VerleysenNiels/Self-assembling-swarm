@@ -11,6 +11,7 @@ package Agents;
  */
 
 import Environment.Environment;
+import java.util.ArrayList;
 import sim.engine.*;
 import sim.util.Bag;
 import sim.util.Double2D;
@@ -26,6 +27,8 @@ public class Bot implements Steppable{
     private double VISIBLE_DIST;
     private boolean generated_ID = false;
     private int ID_SIZE;
+    private Double2D location;
+    private boolean localized = false;
     
     // Agent behaviour
     @Override
@@ -68,8 +71,36 @@ public class Bot implements Steppable{
     }
     
     // Localization
-    private void localization() {
-        
+    private void localization(Bag neighbors, Environment env) {
+        if(!seed){
+            ArrayList<Bot> localized_n = new ArrayList<Bot>(); 
+            for(Object n : neighbors){
+                Bot neighbor = (Bot) n;
+                if(neighbor.getJoined_shape() && neighbor.isLocalized()){
+                    localized_n.add(neighbor);
+                }
+            }
+            if(this.at_least_three_noncollinear(localized_n)){
+                Double2D real_location_this = env.field.getObjectLocationAsDouble2D(this);
+                for(Bot n : localized_n){
+                    Double2D n_location = env.field.getObjectLocationAsDouble2D(n);
+                    // Euclidian distance based on coordinate system of the swarm
+                    double c = this.location.distance(n.getLocation());
+                    // Vector components of unit vector fromthis bot to the neighbor
+                    double vx = Math.sqrt((this.location.getX() - n.getLocation().getX())*(this.location.getX() - n.getLocation().getX()))/c;
+                    double vy = Math.sqrt((this.location.getY() - n.getLocation().getY())*(this.location.getY() - n.getLocation().getY()))/c;
+                    // Determine new location following this point
+                    Double2D real_location_other = env.field.getObjectLocationAsDouble2D(n);
+                    double nx = real_location_this.getX() +  Math.sqrt((real_location_this.getX() - real_location_other.getX())*(real_location_this.getX() - real_location_other.getX()))*vx;
+                    double ny = real_location_this.getY() +  Math.sqrt((real_location_this.getY() - real_location_other.getY())*(real_location_this.getY() - real_location_other.getY()))*vy;
+                    // Update location
+                    double x = this.location.getX() - ((this.location.getX() - nx)/4);
+                    double y = this.location.getY() - ((this.location.getY() - ny)/4);
+                    this.location = new Double2D(x, y);
+                }
+                this.localized = true;
+            }  
+        }
     }
     
     // Check ID if not locally unique -> make it unique
@@ -106,5 +137,31 @@ public class Bot implements Steppable{
     public int getID() {
         return ID;
     }    
-    
+
+    public Double2D getLocation() {
+        return location;
+    }
+
+    public boolean isLocalized() {
+        return localized;
+    }
+
+    private boolean at_least_three_noncollinear(ArrayList<Bot> localized_n) {
+        boolean noncollinear = false;
+        int third = 2;
+        
+        double ydiff = localized_n.get(1).getLocation().getY() - localized_n.get(0).getLocation().getY();
+        double xdiff = localized_n.get(1).getLocation().getX() - localized_n.get(0).getLocation().getX();
+        double slope1 = ydiff / xdiff;
+        
+        while(!noncollinear && third < localized_n.size()){
+            ydiff = localized_n.get(third).getLocation().getY() - localized_n.get(0).getLocation().getY();
+            xdiff = localized_n.get(third).getLocation().getX() - localized_n.get(0).getLocation().getX();
+            double slope2 = ydiff / xdiff;
+            noncollinear = (slope1 == slope2);
+        }
+        
+        return noncollinear;
+    }
+       
 }
