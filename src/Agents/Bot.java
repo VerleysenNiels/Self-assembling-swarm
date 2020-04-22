@@ -44,6 +44,7 @@ public class Bot implements Steppable{
         
         if(!this.joined_shape){
             this.gradient = this.gradient_formation(neighbors);
+            this.localization(neighbors, env);
         }
     }
     
@@ -145,8 +146,14 @@ public class Bot implements Steppable{
     public boolean isLocalized() {
         return localized;
     }
-
+    
+    // Extra functions
     private boolean at_least_three_noncollinear(ArrayList<Bot> localized_n) {
+        
+        if(localized_n.size() < 3){
+            return false;
+        }
+        
         boolean noncollinear = false;
         int third = 2;
         
