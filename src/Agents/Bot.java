@@ -21,8 +21,11 @@ public class Bot implements Steppable{
     private Boolean seed;
     private Boolean joined_shape = false;
     private int gradient;
+    private int ID;
     private int MAXGRAD;
     private double VISIBLE_DIST;
+    private boolean generated_ID = false;
+    private int ID_SIZE;
     
     // Agent behaviour
     @Override
@@ -32,6 +35,9 @@ public class Bot implements Steppable{
         
         Double2D position = env.field.getObjectLocationAsDouble2D(this);
         Bag neighbors = env.field.getNeighborsWithinDistance(position, this.VISIBLE_DIST, false);
+        
+        // Use locally unique ID, remove this line when using globally unique ID
+        this.check_id(neighbors, env);
         
         if(!this.joined_shape){
             this.gradient = this.gradient_formation(neighbors);
@@ -67,8 +73,24 @@ public class Bot implements Steppable{
     }
     
     // Check ID if not locally unique -> make it unique
-    private void check_id() {
-        
+    // This is the algorithm from the paper, however if this gives problems it is also possible to give globally unique ID at creation
+    private void check_id(Bag neighbors, Environment env) {
+        // Init ID if not done yet
+        if(!this.generated_ID){
+            this.ID = env.random.nextInt(this.ID_SIZE);
+            this.generated_ID = true;
+        }
+        for(Object n : neighbors){
+            Bot neighbor = (Bot) n;
+            
+            if(neighbor.getID() == this.ID){
+                this.generated_ID = false;
+            }    
+        } 
+        if(!this.generated_ID){
+            this.ID = env.random.nextInt(this.ID_SIZE);
+            this.generated_ID = true;
+        }
     }
     
     // Getters
@@ -80,5 +102,9 @@ public class Bot implements Steppable{
     public int getGradient() {
         return gradient;
     }
+
+    public int getID() {
+        return ID;
+    }    
     
 }
