@@ -19,22 +19,27 @@ import sim.util.Double2D;
 public class Bot implements Steppable{
     private static final long serialVersionUID = 1;
     
-    private Boolean seed;
-    private Boolean joined_shape = false;
-    private int gradient;
-    private int ID;
+    // BOT SETTINGS
     private int MAXGRAD;
     private double VISIBLE_DIST;
-    private boolean generated_ID = false;
     private int ID_SIZE;
-    private Double2D location;
-    private boolean localized = false;
-    private double orientation_x;
-    private double orientation_y;
     private double MAX_DISTANCE;
     private double DESIRED_DISTANCE;
     private double ROTATION_STEP;
     private double STEPSIZE;
+    private int BOTSIZE;
+    
+    // BOT VARIABLES
+    private Boolean seed;
+    private Boolean joined_shape = false;
+    private int gradient;
+    private int ID;
+    private double orientation_x;
+    private double orientation_y;    
+    private boolean generated_ID = false;    
+    private Double2D location;
+    private boolean localized = false;
+    
     
     // Agent behaviour
     @Override
@@ -215,15 +220,18 @@ public class Bot implements Steppable{
     
     // Move the bot forward, following its orientation
     private void move(Environment env) {
-        // CHECK IF BOT CAN MOVE FORWARD??
-        
         // move forward
         Double2D current = env.field.getObjectLocationAsDouble2D(this);
         double new_x = current.getX() + this.STEPSIZE * this.orientation_x;
         double new_y = current.getY() + this.STEPSIZE * this.orientation_y;
         
         Double2D new_location = new Double2D(new_x, new_y);
-        env.field.setObjectLocation(this, new_location);
+        
+        // Check if new location not obstructed by other bots
+        Bag neighbors = env.field.getNeighborsExactlyWithinDistance(new_location, 2*this.BOTSIZE);
+        if(neighbors.isEmpty()){
+            env.field.setObjectLocation(this, new_location);
+        }        
     }
-       
+    
 }
