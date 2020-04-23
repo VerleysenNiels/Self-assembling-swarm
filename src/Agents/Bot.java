@@ -18,7 +18,7 @@ import sim.util.Double2D;
 
 public class Bot implements Steppable{
     private static final long serialVersionUID = 1;
-    
+
     // STATES
     enum State {
     WAIT_TO_MOVE,
@@ -97,7 +97,7 @@ public class Bot implements Steppable{
                     this.state = State.JOINED_SHAPE;
                 }
                 else{
-                    Bot closest = this.nearest_neighbor(position, neighbors);
+                    Bot closest = this.nearest_neighbor(position, neighbors, env);
                     if(closest.getGradient() < this.gradient){
                         this.edge_follow(neighbors, env);
                     }
@@ -288,28 +288,82 @@ public class Bot implements Steppable{
         return false;
     }
     
+    // Checks if the bot is currently in the given shape
     private boolean inside_shape(){
         return false;
     }
     
+    // Checks if there are visible neighbors in a moving state
     private boolean no_moving_neighbors(Bag neighbors) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    private int highest_gradient(Bag neighbors) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    private ArrayList<Bot> find_same_gradient(Bag neighbors) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    private int highest_id(ArrayList<Bot> same_gradient) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        boolean moving = false;
+        for(Object n : neighbors){
+            Bot neighbor = (Bot) n;
+            if(neighbor.isMoving()){
+                moving = true;
+            }
+        }
+        return moving;
     }
     
-    private Bot nearest_neighbor(Double2D position, Bag neighbors) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    // Find highest gradient among neighbors
+    private int highest_gradient(Bag neighbors) {
+        int highest = 0;
+        for(Object n : neighbors){
+            Bot neighbor = (Bot) n;
+            if(neighbor.getGradient() > highest){
+                highest = neighbor.getGradient();
+            }
+        }
+        return highest;
+    }
+    
+    // Return a list with all neighbors with the same gradient
+    private ArrayList<Bot> find_same_gradient(Bag neighbors) {
+        ArrayList<Bot> same_grad = new ArrayList<Bot>();
+        for(Object n : neighbors){
+            Bot neighbor = (Bot) n;
+            if(neighbor.getGradient() == this.gradient){
+                same_grad.add(neighbor);
+            }
+        }
+        return same_grad;
+    }
+    
+    // Return the highest ID from a list of bots
+    private int highest_id(ArrayList<Bot> bots) {
+        int highest = 0;
+        for(Bot n : bots){
+            if(n.getID() > highest){
+                highest = n.getID();
+            }
+        }
+        return highest;
+    }
+    
+    // Find the single nearest visible neighbor
+    private Bot nearest_neighbor(Double2D position, Bag neighbors, Environment env) {
+        Bot nearest = null;
+        double shortest_dist = 0;
+        for(Object n : neighbors){
+            Bot neighbor = (Bot) n;
+            if(nearest == null){
+                nearest = neighbor;
+                shortest_dist = position.distance(env.field.getObjectLocationAsDouble2D(neighbor));
+            }
+            else{
+                double dist = position.distance(env.field.getObjectLocationAsDouble2D(neighbor));
+                if(dist < shortest_dist){
+                    nearest = neighbor;
+                    shortest_dist = dist;
+                }
+            }
+        }
+        return nearest;
+    }
+    
+    // Returns true if this bot is in a moving state
+    private boolean isMoving() {
+        return (this.state == State.MOVE_WHILE_INSIDE) || (this.state == State.MOVE_WHILE_OUTSIDE);
     }
     
 }
