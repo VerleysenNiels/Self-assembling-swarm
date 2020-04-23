@@ -28,14 +28,14 @@ public class Bot implements Steppable{
   }
     
     // BOT SETTINGS
-    private int MAXGRAD;
-    private double VISIBLE_DIST;
-    private int ID_SIZE;
-    private double MAX_DISTANCE;
-    private double DESIRED_DISTANCE;
-    private double ROTATION_STEP;
-    private double STEPSIZE;
-    private int BOTSIZE;
+    private final int MAXGRAD = 10000;
+    private final double VISIBLE_DIST = 10;
+    private final int ID_SIZE = 100000;
+    private final double MAX_DISTANCE = 500;
+    private final double DESIRED_DISTANCE = 5;
+    private final double ROTATION_STEP = 15;
+    private final double STEPSIZE = 1;
+    private final int BOTSIZE = 1;
     
     // BOT VARIABLES
     private Boolean seed;
@@ -49,7 +49,20 @@ public class Bot implements Steppable{
     private State state = State.WAIT_TO_MOVE;
     private double previous_distance; // = this.MAX_DISTANCE;
     
-    
+    // Constructor
+    public Bot(Boolean seed, double orientation_x, double orientation_y, Double2D location) {
+        this.seed = seed;
+        this.orientation_x = orientation_x;
+        this.orientation_y = orientation_y;
+        this.location = location;
+        
+        if(seed){
+            this.state = State.JOINED_SHAPE;
+            this.gradient = 0;
+            this.localized = true;
+        }
+    }
+        
     // Agent behavior
     @Override
     public void step(SimState state) {
