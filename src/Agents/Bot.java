@@ -33,6 +33,8 @@ public class Bot implements Steppable{
     private double orientation_y;
     private double MAX_DISTANCE;
     private double DESIRED_DISTANCE;
+    private double ROTATION_STEP;
+    private double STEPSIZE;
     
     // Agent behaviour
     @Override
@@ -199,12 +201,29 @@ public class Bot implements Steppable{
     
     // Rotate the bot clockwise or counterclockwise
     private void rotate(boolean clockwise) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        double beta = this.ROTATION_STEP;
+        if(clockwise){
+            beta = -beta;
+        }
+        
+        double new_ox = Math.cos(beta*this.orientation_x) - Math.sin(beta*this.orientation_y);
+        double new_oy = Math.sin(beta*this.orientation_x) + Math.cos(beta*this.orientation_y);
+        
+        this.orientation_x = new_ox;
+        this.orientation_y = new_oy;
     }
     
     // Move the bot forward, following its orientation
     private void move(Environment env) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // CHECK IF BOT CAN MOVE FORWARD??
+        
+        // move forward
+        Double2D current = env.field.getObjectLocationAsDouble2D(this);
+        double new_x = current.getX() + this.STEPSIZE * this.orientation_x;
+        double new_y = current.getY() + this.STEPSIZE * this.orientation_y;
+        
+        Double2D new_location = new Double2D(new_x, new_y);
+        env.field.setObjectLocation(this, new_location);
     }
        
 }
