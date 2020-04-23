@@ -19,6 +19,14 @@ import sim.util.Double2D;
 public class Bot implements Steppable{
     private static final long serialVersionUID = 1;
     
+    // STATES
+    enum State {
+    WAIT_TO_MOVE,
+    MOVE_WHILE_OUTSIDE,
+    MOVE_WHILE_INSIDE,
+    JOINED_SHAPE
+  }
+    
     // BOT SETTINGS
     private int MAXGRAD;
     private double VISIBLE_DIST;
@@ -31,7 +39,6 @@ public class Bot implements Steppable{
     
     // BOT VARIABLES
     private Boolean seed;
-    private Boolean joined_shape = false;
     private int gradient;
     private int ID;
     private double orientation_x;
@@ -39,9 +46,11 @@ public class Bot implements Steppable{
     private boolean generated_ID = false;    
     private Double2D location;
     private boolean localized = false;
+    private State state = State.WAIT_TO_MOVE;
+    private double previous_distance; // = this.MAX_DISTANCE;
     
     
-    // Agent behaviour
+    // Agent behavior
     @Override
     public void step(SimState state) {
         // GET ENVIRONMENT STATE
@@ -53,15 +62,56 @@ public class Bot implements Steppable{
         // Use locally unique ID, remove this line when using globally unique ID
         this.check_id(neighbors, env);
         
-        if(!this.joined_shape){
+        if(this.state != State.JOINED_SHAPE){
+            // Perform gradient formation and try to localize
             this.gradient = this.gradient_formation(neighbors);
             this.localization(neighbors, env);
+            
+            //BEHAVIOR IN DIFFERENT STATES
+            // Wait in the starting shape and observe neighbors to determine if bot can start moving
+            if(this.state == State.WAIT_TO_MOVE){
+                if(this.no_moving_neighbors(neighbors)){
+                    int highest_grad = this.highest_gradient(neighbors);
+                    if(this.gradient > highest_grad){
+                        this.state = State.MOVE_WHILE_OUTSIDE;
+                    }
+                    else if(this.gradient == highest_grad){
+                        ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors);
+                        int highest_id = this.highest_id(same_gradient);
+                        if(this.ID > highest_id){
+                            this.state = State.MOVE_WHILE_OUTSIDE;
+                        }
+                    }
+                }
+            }
+            // Edge following outside the shape
+            else if(this.state == State.MOVE_WHILE_OUTSIDE){
+                if(this.inside_shape()){
+                    this.state = State.MOVE_WHILE_INSIDE;
+                }
+                this.edge_follow(neighbors, env);
+            }
+            // Edge following inside the shape
+            else if(this.state == State.MOVE_WHILE_INSIDE){
+                if(!this.inside_shape()){
+                    this.state = State.JOINED_SHAPE;
+                }
+                else{
+                    Bot closest = this.nearest_neighbor(position, neighbors);
+                    if(closest.getGradient() < this.gradient){
+                        this.edge_follow(neighbors, env);
+                    }
+                    else{
+                        this.state = State.JOINED_SHAPE;
+                    }
+                }
+            }
         }
     }
     
     // USED ALGORITHMS
     // Edge-following
-    private void edge_follow(Bag neighbors, Environment env, double previous_distance) {
+    private void edge_follow(Bag neighbors, Environment env) {
         // Search for shortest distance to neighbor
         double dist = this.MAX_DISTANCE;
         Double2D current_location = env.field.getObjectLocationAsDouble2D(this);
@@ -74,16 +124,18 @@ public class Bot implements Steppable{
         }
         
         // Determine if the bot needs to rotate
-        if(dist < this.DESIRED_DISTANCE && previous_distance > dist){
+        if(dist < this.DESIRED_DISTANCE && this.previous_distance > dist){
             // Too close to the other bots, rotate counterclockwise
             this.rotate(false);
         }
-        else if(dist > this.DESIRED_DISTANCE && previous_distance < dist){
+        else if(dist > this.DESIRED_DISTANCE && this.previous_distance < dist){
             // Too far from the other bots, rotate clockwise
             this.rotate(true);
         }
         
-        this.move(env);
+        if(this.move(env)){
+            this.previous_distance = dist;
+        }
     }
     
     // Gradient formation
@@ -109,7 +161,7 @@ public class Bot implements Steppable{
             ArrayList<Bot> localized_n = new ArrayList<Bot>(); 
             for(Object n : neighbors){
                 Bot neighbor = (Bot) n;
-                if(neighbor.getJoined_shape() && neighbor.isLocalized()){
+                if(neighbor.has_joined_shape() && neighbor.isLocalized()){
                     localized_n.add(neighbor);
                 }
             }
@@ -159,8 +211,8 @@ public class Bot implements Steppable{
     
     // Getters
 
-    public Boolean getJoined_shape() {
-        return joined_shape;
+    public Boolean has_joined_shape() {
+        return this.state == State.JOINED_SHAPE;
     }
 
     public int getGradient() {
@@ -219,7 +271,7 @@ public class Bot implements Steppable{
     }
     
     // Move the bot forward, following its orientation
-    private void move(Environment env) {
+    private boolean move(Environment env) {
         // move forward
         Double2D current = env.field.getObjectLocationAsDouble2D(this);
         double new_x = current.getX() + this.STEPSIZE * this.orientation_x;
@@ -231,7 +283,33 @@ public class Bot implements Steppable{
         Bag neighbors = env.field.getNeighborsExactlyWithinDistance(new_location, 2*this.BOTSIZE);
         if(neighbors.isEmpty()){
             env.field.setObjectLocation(this, new_location);
-        }        
+            return true;
+        }
+        return false;
+    }
+    
+    private boolean inside_shape(){
+        return false;
+    }
+    
+    private boolean no_moving_neighbors(Bag neighbors) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private int highest_gradient(Bag neighbors) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private ArrayList<Bot> find_same_gradient(Bag neighbors) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private int highest_id(ArrayList<Bot> same_gradient) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private Bot nearest_neighbor(Double2D position, Bag neighbors) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
