@@ -29,6 +29,10 @@ public class Bot implements Steppable{
     private int ID_SIZE;
     private Double2D location;
     private boolean localized = false;
+    private double orientation_x;
+    private double orientation_y;
+    private double MAX_DISTANCE;
+    private double DESIRED_DISTANCE;
     
     // Agent behaviour
     @Override
@@ -50,8 +54,29 @@ public class Bot implements Steppable{
     
     // USED ALGORITHMS
     // Edge-following
-    private void edge_follow() {
+    private void edge_follow(Bag neighbors, Environment env, double previous_distance) {
+        // Search for shortest distance to neighbor
+        double dist = this.MAX_DISTANCE;
+        Double2D current_location = env.field.getObjectLocationAsDouble2D(this);
+        for(Object n : neighbors){
+            Bot neighbor = (Bot) n;
+            double d = current_location.distance(env.field.getObjectLocationAsDouble2D(neighbor));
+            if(d < dist){
+                dist = d;
+            }
+        }
         
+        // Determine if the bot needs to rotate
+        if(dist < this.DESIRED_DISTANCE && previous_distance > dist){
+            // Too close to the other bots, rotate counterclockwise
+            this.rotate(false);
+        }
+        else if(dist > this.DESIRED_DISTANCE && previous_distance < dist){
+            // Too far from the other bots, rotate clockwise
+            this.rotate(true);
+        }
+        
+        this.move(env);
     }
     
     // Gradient formation
@@ -148,6 +173,7 @@ public class Bot implements Steppable{
     }
     
     // Extra functions
+    // Check if there are at least three noncollinear bots in the given list
     private boolean at_least_three_noncollinear(ArrayList<Bot> localized_n) {
         
         if(localized_n.size() < 3){
@@ -169,6 +195,16 @@ public class Bot implements Steppable{
         }
         
         return noncollinear;
+    }
+    
+    // Rotate the bot clockwise or counterclockwise
+    private void rotate(boolean clockwise) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    // Move the bot forward, following its orientation
+    private void move(Environment env) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
        
 }
