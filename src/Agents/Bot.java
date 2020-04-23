@@ -11,6 +11,7 @@ package Agents;
  */
 
 import Environment.Environment;
+import Shape.Shape;
 import java.util.ArrayList;
 import sim.engine.*;
 import sim.util.Bag;
@@ -47,14 +48,17 @@ public class Bot implements Steppable{
     private Double2D location;
     private boolean localized = false;
     private State state = State.WAIT_TO_MOVE;
-    private double previous_distance; // = this.MAX_DISTANCE;
+    private double previous_distance;
+    private final Shape shape;
     
     // Constructor
-    public Bot(Boolean seed, double orientation_x, double orientation_y, Double2D location) {
+    public Bot(Boolean seed, double orientation_x, double orientation_y, Double2D location, Shape shape) {
         this.seed = seed;
         this.orientation_x = orientation_x;
         this.orientation_y = orientation_y;
         this.location = location;
+        this.shape = shape;
+        this.previous_distance = this.MAX_DISTANCE;
         
         if(seed){
             this.state = State.JOINED_SHAPE;
@@ -303,7 +307,9 @@ public class Bot implements Steppable{
     
     // Checks if the bot is currently in the given shape
     private boolean inside_shape(){
-        return false;
+        int x = (int) Math.round(this.location.getX());
+        int y = (int) Math.round(this.location.getY());
+        return this.shape.inside(x, y);
     }
     
     // Checks if there are visible neighbors in a moving state
