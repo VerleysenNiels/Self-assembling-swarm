@@ -35,7 +35,8 @@ public class Project_Main {
         Environment env = new Environment(System.currentTimeMillis(), Project_Main.DISCRETIZATION, Project_Main.WIDTH, Project_Main.HEIGHT);
         
         // Define pattern to assemble
-        Shape shape = null;
+        Shape shape = new Shape();
+        shape.rectangle(0, 0, 100, 100);
         
         // Add agents
         double stepsize = 2 * BOTSIZE;

@@ -57,6 +57,21 @@ public class Shape {
         return false;
     }
     
-    // Maybe add ability to add basic shapes like rectangles or circles to the shape
-    
+    // Initialize shape as a rectangle
+    public void rectangle(int cornerx, int cornery, int sizex, int sizey){
+        this.y_ranges = new ArrayList<int[]>();
+        this.x_ranges = new ArrayList<ArrayList<int[]>>();
+        
+        this.y_ranges.add(new int[]{cornery, (cornery+sizey)});
+        int index = 0;
+        while(index < cornery){
+            this.x_ranges.add(new ArrayList<int[]>());
+            index++;
+        }
+        for(int i = 0; i < sizey; i++){
+            ArrayList<int[]> l = new ArrayList<int[]>();
+            l.add(new int[]{cornerx, (cornerx+sizex)});
+            this.x_ranges.add(l);
+        }
+    }
 }
