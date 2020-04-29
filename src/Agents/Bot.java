@@ -34,13 +34,13 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     
     // BOT SETTINGS
     private final int MAXGRAD = 10000;
-    private final double VISIBLE_DIST = 3;
+    private final double VISIBLE_DIST = 15;
     private final int ID_SIZE = 100000;
     private final double MAX_DISTANCE = 500;
     private final double DESIRED_DISTANCE = 5;
     private final double ROTATION_STEP = 15;
-    private final double STEPSIZE = 1;
-    private final int BOTSIZE = 1;
+    private final double STEPSIZE = 2;
+    private final int BOTSIZE = 5;
     
     // BOT VARIABLES
     private boolean seed;
@@ -327,12 +327,13 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         // move forward
         Double2D current = env.field.getObjectLocationAsDouble2D(this);
         double new_x = current.getX() + this.STEPSIZE * this.orientation_x;
-        double new_y = current.getY() + this.STEPSIZE * this.orientation_y;
+        double new_y = current.getY() - this.STEPSIZE * this.orientation_y;
         
         Double2D new_location = new Double2D(new_x, new_y);
         
         // Check if new location not obstructed by other bots
-        Bag neighbors = env.field.getNeighborsExactlyWithinDistance(new_location, 2*this.BOTSIZE);
+        Bag neighbors = env.field.getNeighborsExactlyWithinDistance(new_location, this.BOTSIZE);
+        neighbors.remove(this);
         if(neighbors.isEmpty()){
             env.field.setObjectLocation(this, new_location);
             return true;

@@ -24,11 +24,11 @@ public class Environment extends SimState{
     private static double HEIGHT = 900.0;
     private static int NUMBOTS = 100;
     private static int NUMSTEPS = 100000;
-    private static int BOTSIZE = 1;
+    private static int BOTSIZE = 5;
     private static int NRROWS = 10; // 25;
     private static int NRCOLS = 10; // 40;
     private static double middlex = 100;
-    private static double middley = 100;
+    private static double middley = 700;
     
     public Continuous2D field;
     
@@ -68,7 +68,7 @@ public class Environment extends SimState{
             for(int col = 1 ; col <= NRCOLS ; col++){
                 b = new Bot(false, 0.0, -1.0, new Double2D(0.0, 0.0), shape); 
                 this.schedule.scheduleRepeating(b);
-                this.field.setObjectLocation(b, new Double2D((double)(-col + middlex), (double)(-row  + middley))); 
+                this.field.setObjectLocation(b, new Double2D((double)(col * this.BOTSIZE + middlex), (double)(row * this.BOTSIZE  + middley))); 
             }
         }
     }
