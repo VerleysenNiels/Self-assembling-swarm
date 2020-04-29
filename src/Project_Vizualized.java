@@ -13,10 +13,7 @@ import Environment.Environment;
 
 import sim.engine.*;
 import sim.display.*;
-import sim.portrayal.grid.*;
-import java.awt.*;
 import javax.swing.*;
-import sim.portrayal.FieldPortrayal2D;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
 
 public class Project_Vizualized extends GUIState {
@@ -47,7 +44,6 @@ public class Project_Vizualized extends GUIState {
         // tell the portrayals what to portray and how to portray them
         fieldPortrayal.setField(((Environment)state).field);  // Attach portrayal to grid
         fieldPortrayal.setDisplayingToroidally(true);
-        //fieldPortrayal.draw(Bot, graphics, info);
     }
     
     // START AND FINISH SIMULATION
@@ -59,7 +55,6 @@ public class Project_Vizualized extends GUIState {
     }
     
     // OPEN AND CLOSE VISUALIZATION
-    // open is with init and close is with quit method
     // Controller is responsible for running the simulation. The Controller calls the start() and finish() methods, and calls the GUIState's step() method
     public void init(Controller c){
         super.init(c);
@@ -70,15 +65,13 @@ public class Project_Vizualized extends GUIState {
         displayFrame = display.createFrame();
         c.registerFrame(displayFrame);   // register the frame so it appears in the "Display" list
         displayFrame.setVisible(true);
-        
-        env.start();
 
         display.attach(fieldPortrayal,"Swarm");  // attach the portrayals
-
     }
     
     // LAUNCH THE PROGRAM
     public static void main(String[] args){
-        new Project_Vizualized().createController();        
+        Project_Vizualized viz = new Project_Vizualized();
+        viz.createController();        
     }
 }

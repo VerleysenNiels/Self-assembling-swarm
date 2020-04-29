@@ -13,7 +13,6 @@ package Environment;
 import Agents.Bot;
 import Shape.Shape;
 import sim.engine.*;
-import ec.util.*;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
 
@@ -34,8 +33,11 @@ public class Environment extends SimState{
     public Environment(long seed) {
         super(seed);
         this.field = new Continuous2D(this.DISCRETIZATION, this.WIDTH, this.HEIGHT);
-        
-        // Define pattern to assemble
+    }   
+    
+    public void start() {
+        super.start();  // very important!  This resets and cleans out the Schedule.
+    // Define pattern to assemble
         Shape shape = new Shape();
         shape.rectangle(0, 0, 100, 100);
         
@@ -67,6 +69,5 @@ public class Environment extends SimState{
                 this.field.setObjectLocation(b, new Double2D((double)(col * stepsize), (double)(row * stepsize)));  //TODO: Place bots in a group
             }
         }
-    }   
-    
+    }
 }

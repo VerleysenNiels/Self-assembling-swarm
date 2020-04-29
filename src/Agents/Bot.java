@@ -30,7 +30,7 @@ public class Bot implements Steppable{
     
     // BOT SETTINGS
     private final int MAXGRAD = 10000;
-    private final double VISIBLE_DIST = 10;
+    private final double VISIBLE_DIST = 5;
     private final int ID_SIZE = 100000;
     private final double MAX_DISTANCE = 500;
     private final double DESIRED_DISTANCE = 5;
@@ -71,7 +71,7 @@ public class Bot implements Steppable{
     @Override
     public void step(SimState state) {
         
-        System.out.println("STEP");
+        System.out.println("STEP START");
         
         // GET ENVIRONMENT STATE
         Environment env = (Environment)state;
@@ -126,6 +126,7 @@ public class Bot implements Steppable{
                     }
                 }
             }
+            System.out.println("STEP END");
         }
     }
     
