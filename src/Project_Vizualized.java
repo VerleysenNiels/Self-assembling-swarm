@@ -50,6 +50,7 @@ public class Project_Vizualized extends GUIState {
     public void start() {
         super.start();      
         setupPortrayals();  // set up our portrayals
+        this.scheduleRepeatingImmediatelyAfter(new RateAdjuster(30.0));
         display.reset();    // reschedule the displayer
         display.repaint();  // redraw the display
     }
@@ -61,12 +62,19 @@ public class Project_Vizualized extends GUIState {
         
         // Make the Display2D.  We'll have it display stuff later.
         Environment env = (Environment)state;
-        display = new Display2D(env.field.width * 4, env.field.height * 4,this);
+        display = new Display2D(750, 750,this)
+            {
+            public void quit()                                          // we close our controller when we die
+                {
+                super.quit();
+                ((SimpleController) c).doClose();
+                }
+            };
         displayFrame = display.createFrame();
         c.registerFrame(displayFrame);   // register the frame so it appears in the "Display" list
         displayFrame.setVisible(true);
 
-        display.attach(fieldPortrayal,"Swarm");  // attach the portrayals
+        display.attach(fieldPortrayal, "Swarm");  // attach the portrayals
     }
     
     // LAUNCH THE PROGRAM

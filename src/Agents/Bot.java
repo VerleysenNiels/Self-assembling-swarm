@@ -30,7 +30,7 @@ public class Bot implements Steppable{
     
     // BOT SETTINGS
     private final int MAXGRAD = 10000;
-    private final double VISIBLE_DIST = 5;
+    private final double VISIBLE_DIST = 3;
     private final int ID_SIZE = 100000;
     private final double MAX_DISTANCE = 500;
     private final double DESIRED_DISTANCE = 5;
@@ -70,9 +70,7 @@ public class Bot implements Steppable{
     // Agent behavior
     @Override
     public void step(SimState state) {
-        
-        System.out.println("STEP START");
-        
+        System.out.println("ID: " + this.ID);       
         // GET ENVIRONMENT STATE
         Environment env = (Environment)state;
         
@@ -84,7 +82,9 @@ public class Bot implements Steppable{
         
         if(this.state != State.JOINED_SHAPE){
             // Perform gradient formation and try to localize
+            System.out.println("DETERMINING GRADIENT");
             this.gradient = this.gradient_formation(neighbors);
+            System.out.println("LOCALIZING");
             this.localization(neighbors, env);
             
             //BEHAVIOR IN DIFFERENT STATES
@@ -98,7 +98,7 @@ public class Bot implements Steppable{
                     else if(this.gradient == highest_grad){
                         ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors);
                         int highest_id = this.highest_id(same_gradient);
-                        if(this.ID > highest_id){
+                        if(this.ID >= highest_id){
                             this.state = State.MOVE_WHILE_OUTSIDE;
                         }
                     }
@@ -106,6 +106,7 @@ public class Bot implements Steppable{
             }
             // Edge following outside the shape
             else if(this.state == State.MOVE_WHILE_OUTSIDE){
+                System.out.println("MOVING");
                 if(this.inside_shape()){
                     this.state = State.MOVE_WHILE_INSIDE;
                 }
@@ -126,7 +127,6 @@ public class Bot implements Steppable{
                     }
                 }
             }
-            System.out.println("STEP END");
         }
     }
     
@@ -168,11 +168,12 @@ public class Bot implements Steppable{
             int new_gradient = this.MAXGRAD; 
             for(Object n : neighbors){
                 Bot neighbor = (Bot) n;
-                if(new_gradient < neighbor.getGradient()){
+                if(new_gradient > neighbor.getGradient()){
                     new_gradient = neighbor.getGradient();
                 }
             }
-            return new_gradient+1;
+            int grad = new_gradient+1;
+            return grad;
         }
     }
     
@@ -272,6 +273,7 @@ public class Bot implements Steppable{
             xdiff = localized_n.get(third).getLocation().getX() - localized_n.get(0).getLocation().getX();
             double slope2 = ydiff / xdiff;
             noncollinear = (slope1 == slope2);
+            third++;
         }
         
         return noncollinear;
@@ -318,11 +320,11 @@ public class Bot implements Steppable{
     
     // Checks if there are visible neighbors in a moving state
     private boolean no_moving_neighbors(Bag neighbors) {
-        boolean moving = false;
+        boolean moving = true;
         for(Object n : neighbors){
             Bot neighbor = (Bot) n;
             if(neighbor.isMoving()){
-                moving = true;
+                moving = false;
             }
         }
         return moving;

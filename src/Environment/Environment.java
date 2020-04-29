@@ -22,11 +22,11 @@ public class Environment extends SimState{
     private static double DISCRETIZATION = 1.0;
     private static double WIDTH = 10000.0;
     private static double HEIGHT = 10000.0;
-    private static int NUMBOTS = 1000;
+    private static int NUMBOTS = 100;
     private static int NUMSTEPS = 100000;
     private static int BOTSIZE = 1;
-    private static int NRROWS = 25;
-    private static int NRCOLS = 40;
+    private static int NRROWS = 10; // 25;
+    private static int NRCOLS = 10; // 40;
     
     public Continuous2D field;
     
