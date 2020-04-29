@@ -70,6 +70,9 @@ public class Bot implements Steppable{
     // Agent behavior
     @Override
     public void step(SimState state) {
+        
+        System.out.println("STEP");
+        
         // GET ENVIRONMENT STATE
         Environment env = (Environment)state;
         
