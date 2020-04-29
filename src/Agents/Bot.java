@@ -39,7 +39,7 @@ public class Bot implements Steppable{
     private final int BOTSIZE = 1;
     
     // BOT VARIABLES
-    private Boolean seed;
+    private boolean seed;
     private int gradient;
     private int ID;
     private double orientation_x;
@@ -52,7 +52,7 @@ public class Bot implements Steppable{
     private final Shape shape;
     
     // Constructor
-    public Bot(Boolean seed, double orientation_x, double orientation_y, Double2D location, Shape shape) {
+    public Bot(boolean seed, double orientation_x, double orientation_y, Double2D location, Shape shape) {
         this.seed = seed;
         this.orientation_x = orientation_x;
         this.orientation_y = orientation_y;
@@ -107,14 +107,14 @@ public class Bot implements Steppable{
             // Edge following outside the shape
             else if(this.state == State.MOVE_WHILE_OUTSIDE){
                 System.out.println("MOVING");
-                if(this.inside_shape()){
+                if(this.localized && this.inside_shape()){
                     this.state = State.MOVE_WHILE_INSIDE;
                 }
                 this.edge_follow(neighbors, env);
             }
             // Edge following inside the shape
             else if(this.state == State.MOVE_WHILE_INSIDE){
-                if(!this.inside_shape()){
+                if(this.localized && !this.inside_shape()){
                     this.state = State.JOINED_SHAPE;
                 }
                 else{
@@ -323,7 +323,7 @@ public class Bot implements Steppable{
         boolean moving = true;
         for(Object n : neighbors){
             Bot neighbor = (Bot) n;
-            if(neighbor.isMoving()){
+            if(neighbor.isMoving() && !neighbor.equals(this)){
                 moving = false;
             }
         }
