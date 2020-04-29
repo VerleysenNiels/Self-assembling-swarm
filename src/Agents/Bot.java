@@ -12,12 +12,16 @@ package Agents;
 
 import Environment.Environment;
 import Shape.Shape;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import sim.engine.*;
+import sim.portrayal.DrawInfo2D;
+import sim.portrayal.SimplePortrayal2D;
 import sim.util.Bag;
 import sim.util.Double2D;
 
-public class Bot implements Steppable{
+public class Bot extends SimplePortrayal2D implements Steppable {
     private static final long serialVersionUID = 1;
 
     // STATES
@@ -65,6 +69,29 @@ public class Bot implements Steppable{
             this.gradient = 0;
             this.localized = true;
         }
+    }
+    
+    public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
+        final double width = info.draw.width * this.BOTSIZE;
+        final double height = info.draw.height * this.BOTSIZE;
+
+        if (this.seed){
+            graphics.setColor(Color.green);
+        }
+        else if (this.state == State.JOINED_SHAPE){
+            graphics.setColor(Color.red);
+        }
+        else {
+            graphics.setColor(Color.blue);
+        }
+
+        final int x = (int)(info.draw.x - width / 2.0);
+        final int y = (int)(info.draw.y - height / 2.0);
+        final int w = (int)(width);
+        final int h = (int)(height);
+
+        // draw centered on the origin
+        graphics.fillOval(x,y,w,h);
     }
         
     // Agent behavior
@@ -116,6 +143,7 @@ public class Bot implements Steppable{
             else if(this.state == State.MOVE_WHILE_INSIDE){
                 if(this.localized && !this.inside_shape()){
                     this.state = State.JOINED_SHAPE;
+                    System.out.println("I HAVE JOINED THE SHAPE");
                 }
                 else{
                     Bot closest = this.nearest_neighbor(position, neighbors, env);
@@ -124,6 +152,7 @@ public class Bot implements Steppable{
                     }
                     else{
                         this.state = State.JOINED_SHAPE;
+                        System.out.println("I HAVE JOINED THE SHAPE");
                     }
                 }
             }
