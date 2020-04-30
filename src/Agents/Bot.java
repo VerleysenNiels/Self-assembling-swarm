@@ -34,11 +34,10 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     
     // BOT SETTINGS
     private final int MAXGRAD = 10000;
-    private final double VISIBLE_DIST = 10.5;
-    private double VISIBLE_DIST_FAR = 40;
+    private final double VISIBLE_DIST = 50;
     private final int ID_SIZE = 100000;
     private final double MAX_DISTANCE = 500;
-    private final double DESIRED_DISTANCE = 10;
+    private final double DESIRED_DISTANCE = 11;
     private final double ROTATION_STEP = 5;
     private final double STEPSIZE = 1;
     private final int BOTSIZE = 10;
@@ -59,18 +58,20 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     private final Shape shape;
     
     // Constructor
-    public Bot(boolean seed, double orientation_x, double orientation_y, Double2D location, Shape shape) {
+    public Bot(boolean seed, boolean gradient_seed, double orientation_x, double orientation_y, Double2D location, Shape shape) {
         this.seed = seed;
         this.orientation_x = orientation_x;
         this.orientation_y = orientation_y;
         this.location = location;
         this.shape = shape;
         this.previous_distance = this.MAX_DISTANCE;
+        this.gradient = this.MAXGRAD;
         
         if(seed){
             this.state = State.JOINED_SHAPE;
-            this.gradient = 0;
             this.localized = true;
+            if(gradient_seed){ this.gradient = 0;}
+            else {this.gradient = 1;}
         }
     }
     
@@ -110,10 +111,15 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         Environment env = (Environment)state;
         
         Double2D position = env.field.getObjectLocationAsDouble2D(this);
+        
+        // Bot can only see direct neighbors
+        // This is problematic in MASON as a field can only give back all bots within a given radius
+        // I therefore get all bots within the visible range of the bot and remove all bots that are not directly visible
         Bag neighbors = env.field.getNeighborsWithinDistance(position, this.VISIBLE_DIST, false);
         neighbors.remove(this);
-        Bag neighbors_far = env.field.getNeighborsWithinDistance(position, this.VISIBLE_DIST_FAR, false);
-        neighbors_far.remove(this);
+        
+        Bag neighbors_grad = env.field.getNeighborsWithinDistance(position, this.BOTSIZE+0.5, false);
+        neighbors_grad.remove(this);
         
         // Use locally unique ID, remove this line when using globally unique ID
         this.check_id(neighbors, env);
@@ -121,19 +127,19 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         if(this.state != State.JOINED_SHAPE){
             // Perform gradient formation and try to localize
             this.gradient = this.gradient_formation(neighbors);
-            this.localization(neighbors_far, env);
+            this.localization(neighbors, env);
             
             //BEHAVIOR IN DIFFERENT STATES
             // Wait in the starting shape and observe neighbors to determine if bot can start moving
             if(this.state == State.WAIT_TO_MOVE){
-                if(this.no_moving_neighbors(neighbors_far)){
-                    int highest_grad = this.highest_gradient(neighbors_far);
+                if(this.no_moving_neighbors(neighbors)){
+                    int highest_grad = this.highest_gradient(neighbors);
                     if(this.gradient > highest_grad){
                         this.state = State.MOVE_WHILE_OUTSIDE;
                         this.move(env);
                     }
                     else if(this.gradient == highest_grad){
-                        ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors_far);
+                        ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors);
                         int highest_id = this.highest_id(same_gradient);
                         if(this.ID >= highest_id){
                             this.state = State.MOVE_WHILE_OUTSIDE;
@@ -436,5 +442,5 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     private boolean isMoving() {
         return (this.state == State.MOVE_WHILE_INSIDE) || (this.state == State.MOVE_WHILE_OUTSIDE);
     }
-    
+      
 }
