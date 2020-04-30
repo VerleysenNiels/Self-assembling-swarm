@@ -34,7 +34,8 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     
     // BOT SETTINGS
     private final int MAXGRAD = 10000;
-    private final double VISIBLE_DIST = 30;
+    private final double VISIBLE_DIST = 10.5;
+    private double VISIBLE_DIST_FAR = 40;
     private final int ID_SIZE = 100000;
     private final double MAX_DISTANCE = 500;
     private final double DESIRED_DISTANCE = 10;
@@ -92,11 +93,6 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         else {
             graphics.setColor(Color.blue);
         }
-        
-        //TEST
-        //if(this.localized){
-        //    graphics.setColor(Color.black);
-        //}
 
         final int x = (int)(info.draw.x - width / 2.0);
         final int y = (int)(info.draw.y - height / 2.0);
@@ -109,14 +105,15 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         
     // Agent behavior
     @Override
-    public void step(SimState state) {
-        System.out.println("ID: " + this.ID);       
+    public void step(SimState state) {    
         // GET ENVIRONMENT STATE
         Environment env = (Environment)state;
         
         Double2D position = env.field.getObjectLocationAsDouble2D(this);
         Bag neighbors = env.field.getNeighborsWithinDistance(position, this.VISIBLE_DIST, false);
         neighbors.remove(this);
+        Bag neighbors_far = env.field.getNeighborsWithinDistance(position, this.VISIBLE_DIST_FAR, false);
+        neighbors_far.remove(this);
         
         // Use locally unique ID, remove this line when using globally unique ID
         this.check_id(neighbors, env);
@@ -124,19 +121,19 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         if(this.state != State.JOINED_SHAPE){
             // Perform gradient formation and try to localize
             this.gradient = this.gradient_formation(neighbors);
-            this.localization(neighbors, env);
+            this.localization(neighbors_far, env);
             
             //BEHAVIOR IN DIFFERENT STATES
             // Wait in the starting shape and observe neighbors to determine if bot can start moving
             if(this.state == State.WAIT_TO_MOVE){
-                if(this.no_moving_neighbors(neighbors)){
-                    int highest_grad = this.highest_gradient(neighbors);
+                if(this.no_moving_neighbors(neighbors_far)){
+                    int highest_grad = this.highest_gradient(neighbors_far);
                     if(this.gradient > highest_grad){
                         this.state = State.MOVE_WHILE_OUTSIDE;
                         this.move(env);
                     }
                     else if(this.gradient == highest_grad){
-                        ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors);
+                        ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors_far);
                         int highest_id = this.highest_id(same_gradient);
                         if(this.ID >= highest_id){
                             this.state = State.MOVE_WHILE_OUTSIDE;
@@ -227,7 +224,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
             ArrayList<Bot> localized_n = new ArrayList<Bot>(); 
             for(Object n : neighbors){
                 Bot neighbor = (Bot) n;
-                if(neighbor.has_joined_shape() && neighbor.isLocalized()){
+                if(!neighbor.isMoving() && neighbor.isLocalized()){
                     localized_n.add(neighbor);
                 }
             }
@@ -242,10 +239,10 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                     double vy = Math.sqrt((this.location.getY() - n.getLocation().getY())*(this.location.getY() - n.getLocation().getY()))/c;
                     // Determine new location following this point
                     double nx = n.location.getX() +  m*vx;
-                    double ny = n.location.getY() +  m*vy;
+                    double ny = n.location.getY() -  m*vy;
                     // Update location
                     double x = this.location.getX() - (((this.location.getX() - nx)/4));
-                    double y = this.location.getY() + (((this.location.getY() - ny)/4));               
+                    double y = this.location.getY() - (((this.location.getY() - ny)/4));               
                     this.location = new Double2D(x, y);
                 }
                 this.localized = true;

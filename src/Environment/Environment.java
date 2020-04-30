@@ -46,21 +46,21 @@ public class Environment extends SimState{
         // Add agents
         double stepsize = 2 * BOTSIZE;
         // Add SEED bots
-        Bot seed1 = new Bot(true, 0.0, -1.0, new Double2D(1.0, 1.0), shape); 
+        Bot seed1 = new Bot(true, 0.0, -1.0, new Double2D(1.0, 0.9), shape); 
         this.schedule.scheduleRepeating(seed1);
-        this.field.setObjectLocation(seed1, new Double2D((1.0 * this.BOTSIZE) + middlex, (-1.0 * this.BOTSIZE) + middley));
+        this.field.setObjectLocation(seed1, new Double2D((1.0 * this.BOTSIZE) + middlex, (-0.9 * this.BOTSIZE) + middley));
         
-        Bot seed2 = new Bot(true, 0.0, -1.0, new Double2D(1.0, 0.0), shape); 
+        Bot seed2 = new Bot(true, 0.0, -1.0, new Double2D(1.3, 0.0), shape); 
         this.schedule.scheduleRepeating(seed2);
-        this.field.setObjectLocation(seed2, new Double2D((1.0 * this.BOTSIZE) + middlex, 0.0 + middley));
+        this.field.setObjectLocation(seed2, new Double2D((1.3 * this.BOTSIZE) + middlex, 0.0 + middley));
         
-        Bot seed3 = new Bot(true, 0.0, -1.0, new Double2D(0.0, 1.0), shape); 
+        Bot seed3 = new Bot(true, 0.0, -1.0, new Double2D(2.0, 1.2), shape); 
         this.schedule.scheduleRepeating(seed3);
-        this.field.setObjectLocation(seed3, new Double2D(0.0 + middlex, (-1.0 * this.BOTSIZE) + middley));
+        this.field.setObjectLocation(seed3, new Double2D((2.0 * this.BOTSIZE) + middlex, (-1.2 * this.BOTSIZE) + middley));
         
-        Bot seed4 = new Bot(true, 0.0, -1.0, new Double2D(-1.0, 0.0), shape); 
+        Bot seed4 = new Bot(true, 0.0, -1.0, new Double2D(2.1, 0.0), shape); 
         this.schedule.scheduleRepeating(seed4);
-        this.field.setObjectLocation(seed4, new Double2D((-1.0 * this.BOTSIZE) + middlex, 0.0 + middley));
+        this.field.setObjectLocation(seed4, new Double2D((2.1 * this.BOTSIZE) + middlex, 0.0 + middley));
         
         // Add bots to the environment
         Bot b;
