@@ -38,8 +38,8 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     private final int ID_SIZE = 100000;
     private final double MAX_DISTANCE = 500;
     private final double DESIRED_DISTANCE = 5;
-    private final double ROTATION_STEP = 15;
-    private final double STEPSIZE = 2;
+    private final double ROTATION_STEP = 5;
+    private final double STEPSIZE = 1;
     private final int BOTSIZE = 5;
     
     // BOT VARIABLES
@@ -81,6 +81,9 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         else if (this.state == State.JOINED_SHAPE){
             graphics.setColor(Color.red);
         }
+        else if (this.isMoving()){
+            graphics.setColor(Color.yellow);
+        }
         else {
             graphics.setColor(Color.blue);
         }
@@ -103,6 +106,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         
         Double2D position = env.field.getObjectLocationAsDouble2D(this);
         Bag neighbors = env.field.getNeighborsWithinDistance(position, this.VISIBLE_DIST, false);
+        neighbors.remove(this);
         
         // Use locally unique ID, remove this line when using globally unique ID
         this.check_id(neighbors, env);
@@ -121,12 +125,14 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                     int highest_grad = this.highest_gradient(neighbors);
                     if(this.gradient > highest_grad){
                         this.state = State.MOVE_WHILE_OUTSIDE;
+                        this.move(env);
                     }
                     else if(this.gradient == highest_grad){
                         ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors);
                         int highest_id = this.highest_id(same_gradient);
                         if(this.ID >= highest_id){
                             this.state = State.MOVE_WHILE_OUTSIDE;
+                            this.move(env);
                         }
                     }
                 }
@@ -167,9 +173,11 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         Double2D current_location = env.field.getObjectLocationAsDouble2D(this);
         for(Object n : neighbors){
             Bot neighbor = (Bot) n;
-            double d = current_location.distance(env.field.getObjectLocationAsDouble2D(neighbor));
-            if(d < dist){
-                dist = d;
+            if(!neighbor.isMoving()){
+                double d = current_location.distance(env.field.getObjectLocationAsDouble2D(neighbor));
+                if(d < dist){
+                    dist = d;
+                }
             }
         }
         
@@ -311,12 +319,15 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     // Rotate the bot clockwise or counterclockwise
     private void rotate(boolean clockwise) {
         double beta = this.ROTATION_STEP;
-        if(clockwise){
+        if(!clockwise){
             beta = -beta;
         }
         
-        double new_ox = Math.cos(beta*this.orientation_x) - Math.sin(beta*this.orientation_y);
-        double new_oy = Math.sin(beta*this.orientation_x) + Math.cos(beta*this.orientation_y);
+        double cos = Math.cos(beta);
+        double sin = Math.sin(beta);
+        
+        double new_ox = this.orientation_x * cos - this.orientation_y * sin;
+        double new_oy = this.orientation_x * sin + this.orientation_y * cos;
         
         this.orientation_x = new_ox;
         this.orientation_y = new_oy;
@@ -332,7 +343,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         Double2D new_location = new Double2D(new_x, new_y);
         
         // Check if new location not obstructed by other bots
-        Bag neighbors = env.field.getNeighborsExactlyWithinDistance(new_location, this.BOTSIZE);
+        Bag neighbors = env.field.getNeighborsExactlyWithinDistance(new_location, 1);
         neighbors.remove(this);
         if(neighbors.isEmpty()){
             env.field.setObjectLocation(this, new_location);
