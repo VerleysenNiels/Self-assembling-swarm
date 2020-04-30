@@ -46,19 +46,19 @@ public class Environment extends SimState{
         // Add agents
         double stepsize = 2 * BOTSIZE;
         // Add SEED bots
-        Bot seed1 = new Bot(true, true, 0.0, -1.0, new Double2D(-0.05, 0.01), shape); 
+        Bot seed1 = new Bot(true, true, 0.0, -1.0, new Double2D(-0.5, 0.1), shape); 
         this.schedule.scheduleRepeating(seed1);
         this.field.setObjectLocation(seed1, new Double2D((-0.5 * this.BOTSIZE) + middlex, (-0.1 * this.BOTSIZE) + middley));
         
-        Bot seed2 = new Bot(true, false, 0.0, -1.0, new Double2D(0.05, 0.0), shape); 
+        Bot seed2 = new Bot(true, false, 0.0, -1.0, new Double2D(0.5, 0.0), shape); 
         this.schedule.scheduleRepeating(seed2);
         this.field.setObjectLocation(seed2, new Double2D((0.5 * this.BOTSIZE) + middlex, 0.0 + middley));
         
-        Bot seed3 = new Bot(true, false, 0.0, -1.0, new Double2D(0.01, 0.1), shape); 
+        Bot seed3 = new Bot(true, false, 0.0, -1.0, new Double2D(0.1, 1.0), shape); 
         this.schedule.scheduleRepeating(seed3);
         this.field.setObjectLocation(seed3, new Double2D((0.1 * this.BOTSIZE) + middlex, (-1.0 * this.BOTSIZE) + middley));
         
-        Bot seed4 = new Bot(true, false, 0.0, -1.0, new Double2D(-0.02, -0.1), shape); 
+        Bot seed4 = new Bot(true, false, 0.0, -1.0, new Double2D(-0.02, -1.0), shape); 
         this.schedule.scheduleRepeating(seed4);
         this.field.setObjectLocation(seed4, new Double2D((-0.02 * this.BOTSIZE) + middlex, (1.0 * this.BOTSIZE) + middley));
         

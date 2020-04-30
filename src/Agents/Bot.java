@@ -104,7 +104,8 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         graphics.fillOval(x,y,w,h);
         // Show gradient
         graphics.setColor(Color.black);        
-        graphics.drawString(Integer.toString(this.gradient), x+2, y+10);
+        //graphics.drawString(Integer.toString(this.gradient), x+2, y+10);
+        graphics.drawString(this.location.toCoordinates(), x, y+10);
     }
         
     // Agent behavior
@@ -240,21 +241,18 @@ public class Bot extends SimplePortrayal2D implements Steppable {
             if(this.at_least_three_noncollinear(localized_n)){
                 for(Bot n : localized_n){
                     // Measured distance
-                    double m = env.field.getObjectLocationAsDouble2D(this).distance(env.field.getObjectLocationAsDouble2D(n)) / this.BOTSIZE;
+                    double m = env.field.getObjectLocationAsDouble2D(this).distance(env.field.getObjectLocationAsDouble2D(n));// / this.BOTSIZE;                    
                     // Euclidian distance based on coordinate system of the swarm
                     double c = this.location.distance(n.getLocation());
-                    // Vector components of unit vector fromthis bot to the neighbor
-                    double vx = Math.sqrt((this.location.getX() - n.getLocation().getX())*(this.location.getX() - n.getLocation().getX()))/c;
-                    double vy = Math.sqrt((this.location.getY() - n.getLocation().getY())*(this.location.getY() - n.getLocation().getY()))/c;
+                    // Vector components of unit vector from this bot to the neighbor
+                    double vx = (n.getLocation().getX() - this.location.getX())/c;
+                    double vy = (n.getLocation().getY() - this.location.getY())/c;
                     // Determine new location following this point
                     double nx = n.location.getX() +  m*vx;
-                    double ny = n.location.getY() -  m*vy;
+                    double ny = n.location.getY() +  m*vy;
                     // Update location
                     double x = this.location.getX() - (((this.location.getX() - nx)/4));
-                    double y = this.location.getY() - (((this.location.getY() - ny)/4));   
-                    if(x > 1000 || y > 1000 || y < -1000){
-                        System.out.println("WTF");
-                    }
+                    double y = this.location.getY() - (((this.location.getY() - ny)/4));
                     this.location = new Double2D(x, y);
                 }
                 this.localized = true;
