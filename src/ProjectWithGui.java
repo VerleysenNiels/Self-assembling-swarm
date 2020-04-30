@@ -39,7 +39,8 @@ public class ProjectWithGui extends GUIState{
         super(new Environment(System.currentTimeMillis()));
     }
     
-    public static String getName() { return "Woims"; }
+    public static String getName() { return "Self assembling swarm"; }
+    public static String getInfo() { return "In this simulation a swarm of robots try to draw a given shape by moving around the group of robots that are not moving. The bots in this simulation have different colors based on their shape. Seed robots have a green color. Bots that have joined the state are red, those that are moving outside the shape are yellow and the bots that are moving inside the shape are orange. The other bots are waiting to move and are colored blue."; }
 
     public void start() {
         super.start();

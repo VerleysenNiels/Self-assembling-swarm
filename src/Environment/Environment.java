@@ -46,9 +46,9 @@ public class Environment extends SimState{
         // Add agents
         double stepsize = 2 * BOTSIZE;
         // Add SEED bots
-        Bot seed1 = new Bot(true, 0.0, -1.0, new Double2D(0.0, 0.0), shape); 
+        Bot seed1 = new Bot(true, 0.0, -1.0, new Double2D(1.0, 1.0), shape); 
         this.schedule.scheduleRepeating(seed1);
-        this.field.setObjectLocation(seed1, new Double2D(0.0 + middlex, 0.0 + middley));
+        this.field.setObjectLocation(seed1, new Double2D((1.0 * this.BOTSIZE) + middlex, (-1.0 * this.BOTSIZE) + middley));
         
         Bot seed2 = new Bot(true, 0.0, -1.0, new Double2D(1.0, 0.0), shape); 
         this.schedule.scheduleRepeating(seed2);

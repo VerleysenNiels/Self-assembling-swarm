@@ -41,6 +41,8 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     private final double ROTATION_STEP = 5;
     private final double STEPSIZE = 1;
     private final int BOTSIZE = 10;
+    private final double ZEROX = 100;
+    private final double ZEROY = 700;
     
     // BOT VARIABLES
     private boolean seed;
@@ -121,9 +123,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         
         if(this.state != State.JOINED_SHAPE){
             // Perform gradient formation and try to localize
-            System.out.println("DETERMINING GRADIENT");
             this.gradient = this.gradient_formation(neighbors);
-            System.out.println("LOCALIZING");
             this.localization(neighbors, env);
             
             //BEHAVIOR IN DIFFERENT STATES
@@ -147,7 +147,6 @@ public class Bot extends SimplePortrayal2D implements Steppable {
             }
             // Edge following outside the shape
             else if(this.state == State.MOVE_WHILE_OUTSIDE){
-                System.out.println("MOVING");
                 if(this.localized && this.inside_shape()){
                     this.state = State.MOVE_WHILE_INSIDE;
                 }
@@ -233,21 +232,20 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                 }
             }
             if(this.at_least_three_noncollinear(localized_n)){
-                Double2D real_location_this = env.field.getObjectLocationAsDouble2D(this);
                 for(Bot n : localized_n){
-                    Double2D n_location = env.field.getObjectLocationAsDouble2D(n);
+                    // Measured distance
+                    double m = env.field.getObjectLocationAsDouble2D(this).distance(env.field.getObjectLocationAsDouble2D(n)) / this.BOTSIZE;
                     // Euclidian distance based on coordinate system of the swarm
                     double c = this.location.distance(n.getLocation());
                     // Vector components of unit vector fromthis bot to the neighbor
                     double vx = Math.sqrt((this.location.getX() - n.getLocation().getX())*(this.location.getX() - n.getLocation().getX()))/c;
                     double vy = Math.sqrt((this.location.getY() - n.getLocation().getY())*(this.location.getY() - n.getLocation().getY()))/c;
                     // Determine new location following this point
-                    Double2D real_location_other = env.field.getObjectLocationAsDouble2D(n);
-                    double nx = real_location_this.getX() +  Math.sqrt((real_location_this.getX() - real_location_other.getX())*(real_location_this.getX() - real_location_other.getX()))*vx;
-                    double ny = real_location_this.getY() +  Math.sqrt((real_location_this.getY() - real_location_other.getY())*(real_location_this.getY() - real_location_other.getY()))*vy;
+                    double nx = n.location.getX() +  m*vx;
+                    double ny = n.location.getY() +  m*vy;
                     // Update location
-                    double x = this.location.getX() - ((this.location.getX() - nx)/4);
-                    double y = this.location.getY() - ((this.location.getY() - ny)/4);
+                    double x = this.location.getX() - (((this.location.getX() - nx)/4));
+                    double y = this.location.getY() + (((this.location.getY() - ny)/4));               
                     this.location = new Double2D(x, y);
                 }
                 this.localized = true;
