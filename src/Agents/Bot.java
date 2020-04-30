@@ -34,13 +34,13 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     
     // BOT SETTINGS
     private final int MAXGRAD = 10000;
-    private final double VISIBLE_DIST = 15;
+    private final double VISIBLE_DIST = 30;
     private final int ID_SIZE = 100000;
     private final double MAX_DISTANCE = 500;
-    private final double DESIRED_DISTANCE = 5;
+    private final double DESIRED_DISTANCE = 10;
     private final double ROTATION_STEP = 5;
     private final double STEPSIZE = 1;
-    private final int BOTSIZE = 5;
+    private final int BOTSIZE = 10;
     
     // BOT VARIABLES
     private boolean seed;
@@ -81,8 +81,11 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         else if (this.state == State.JOINED_SHAPE){
             graphics.setColor(Color.red);
         }
-        else if (this.isMoving()){
+        else if (this.state == State.MOVE_WHILE_OUTSIDE){
             graphics.setColor(Color.yellow);
+        }
+        else if (this.state == State.MOVE_WHILE_INSIDE){
+            graphics.setColor(Color.orange);
         }
         else {
             graphics.setColor(Color.blue);
