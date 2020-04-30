@@ -34,7 +34,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     
     // BOT SETTINGS
     private final int MAXGRAD = 10000;
-    private final double VISIBLE_DIST = 50;
+    private final double VISIBLE_DIST = 30;
     private final int ID_SIZE = 100000;
     private final double MAX_DISTANCE = 500;
     private final double DESIRED_DISTANCE = 11;
@@ -80,7 +80,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         final double height = info.draw.height * this.BOTSIZE;
 
         if (this.seed){
-            graphics.setColor(Color.green);
+            graphics.setColor(Color.green);;
         }
         else if (this.state == State.JOINED_SHAPE){
             graphics.setColor(Color.red);
@@ -100,8 +100,11 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         final int w = (int)(width);
         final int h = (int)(height);
 
-        // draw centered on the origin
+        // Draw centered on the origin
         graphics.fillOval(x,y,w,h);
+        // Show gradient
+        graphics.setColor(Color.black);        
+        graphics.drawString(Integer.toString(this.gradient), x+2, y+10);
     }
         
     // Agent behavior
@@ -126,12 +129,12 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         
         if(this.state != State.JOINED_SHAPE){
             // Perform gradient formation and try to localize
-            this.gradient = this.gradient_formation(neighbors);
+            this.gradient = this.gradient_formation(neighbors_grad);
             this.localization(neighbors, env);
             
             //BEHAVIOR IN DIFFERENT STATES
             // Wait in the starting shape and observe neighbors to determine if bot can start moving
-            if(this.state == State.WAIT_TO_MOVE){
+            if(this.state == State.WAIT_TO_MOVE && this.gradient < this.MAXGRAD){
                 if(this.no_moving_neighbors(neighbors)){
                     int highest_grad = this.highest_gradient(neighbors);
                     if(this.gradient > highest_grad){
@@ -141,7 +144,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                     else if(this.gradient == highest_grad){
                         ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors);
                         int highest_id = this.highest_id(same_gradient);
-                        if(this.ID >= highest_id){
+                        if(this.ID > highest_id){
                             this.state = State.MOVE_WHILE_OUTSIDE;
                             this.move(env);
                         }
@@ -248,7 +251,10 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                     double ny = n.location.getY() -  m*vy;
                     // Update location
                     double x = this.location.getX() - (((this.location.getX() - nx)/4));
-                    double y = this.location.getY() - (((this.location.getY() - ny)/4));               
+                    double y = this.location.getY() - (((this.location.getY() - ny)/4));   
+                    if(x > 1000 || y > 1000 || y < -1000){
+                        System.out.println("WTF");
+                    }
                     this.location = new Double2D(x, y);
                 }
                 this.localized = true;
