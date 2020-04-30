@@ -94,9 +94,9 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         }
         
         //TEST
-        if(this.localized){
-            graphics.setColor(Color.black);
-        }
+        //if(this.localized){
+        //    graphics.setColor(Color.black);
+        //}
 
         final int x = (int)(info.draw.x - width / 2.0);
         final int y = (int)(info.draw.y - height / 2.0);
@@ -160,7 +160,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                 }
                 else{
                     Bot closest = this.nearest_neighbor(position, neighbors, env);
-                    if(closest.getGradient() < this.gradient){
+                    if(closest != null && closest.getGradient() < this.gradient){
                         this.edge_follow(neighbors, env);
                     }
                     else{
@@ -418,15 +418,17 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         double shortest_dist = 0;
         for(Object n : neighbors){
             Bot neighbor = (Bot) n;
-            if(nearest == null){
-                nearest = neighbor;
-                shortest_dist = position.distance(env.field.getObjectLocationAsDouble2D(neighbor));
-            }
-            else{
-                double dist = position.distance(env.field.getObjectLocationAsDouble2D(neighbor));
-                if(dist < shortest_dist){
+            if(neighbor.has_joined_shape()){
+                if(nearest == null){
                     nearest = neighbor;
-                    shortest_dist = dist;
+                    shortest_dist = position.distance(env.field.getObjectLocationAsDouble2D(neighbor));
+                }
+                else{
+                    double dist = position.distance(env.field.getObjectLocationAsDouble2D(neighbor));
+                    if(dist < shortest_dist){
+                        nearest = neighbor;
+                        shortest_dist = dist;
+                    }
                 }
             }
         }
