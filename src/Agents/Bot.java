@@ -90,6 +90,11 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         else {
             graphics.setColor(Color.blue);
         }
+        
+        //TEST
+        if(this.localized){
+            graphics.setColor(Color.black);
+        }
 
         final int x = (int)(info.draw.x - width / 2.0);
         final int y = (int)(info.draw.y - height / 2.0);
@@ -304,15 +309,14 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         boolean noncollinear = false;
         int third = 2;
         
-        double ydiff = localized_n.get(1).getLocation().getY() - localized_n.get(0).getLocation().getY();
-        double xdiff = localized_n.get(1).getLocation().getX() - localized_n.get(0).getLocation().getX();
-        double slope1 = ydiff / xdiff;
+        double ydiff1 = localized_n.get(1).getLocation().getY() - localized_n.get(0).getLocation().getY();
+        double xdiff1 = localized_n.get(1).getLocation().getX() - localized_n.get(0).getLocation().getX();
         
         while(!noncollinear && third < localized_n.size()){
-            ydiff = localized_n.get(third).getLocation().getY() - localized_n.get(0).getLocation().getY();
-            xdiff = localized_n.get(third).getLocation().getX() - localized_n.get(0).getLocation().getX();
-            double slope2 = ydiff / xdiff;
-            noncollinear = (slope1 == slope2);
+            double ydiff = localized_n.get(third).getLocation().getY() - localized_n.get(0).getLocation().getY();
+            double xdiff = localized_n.get(third).getLocation().getX() - localized_n.get(0).getLocation().getX();
+            double det = xdiff1*ydiff - ydiff1*xdiff; // Determinant of matrix of vector coordinates -> is zero when colinear
+            noncollinear = (det != 0);
             third++;
         }
         
@@ -350,6 +354,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         neighbors.remove(this);
         if(neighbors.isEmpty()){
             env.field.setObjectLocation(this, new_location);
+            this.localized = false;
             return true;
         }
         return false;

@@ -39,7 +39,7 @@ public class Environment extends SimState{
     
     public void start() {
         super.start();  // very important!  This resets and cleans out the Schedule.
-    // Define pattern to assemble
+        // Define pattern to assemble
         Shape shape = new Shape();
         shape.rectangle(0, 0, 100, 100);
         
