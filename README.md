@@ -11,7 +11,9 @@ And an article can be found here: https://spectrum.ieee.org/automaton/robotics/r
 In the first tests I only tried to make the swarm form rectangles. The correct shapes are formed, although they seem to be rotated a bit.
 
 ![Form a rectangle](https://github.com/VerleysenNiels/Self-assembling-swarm/blob/master/Examples/example_rectangle.gif)
+
 In this example the swarm needs to form a 5 by 20 rectangle. As there are 100 bots, all bots should be used.
 
 ![Form a small square](https://github.com/VerleysenNiels/Self-assembling-swarm/blob/master/Examples/example_small_square.gif)
+
 In this example the swarm needs to form a 5 by 5 square. Not all bots should be used.
