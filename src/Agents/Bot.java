@@ -43,6 +43,8 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     private final int BOTSIZE = 10;
     private final double ZEROX = 100;
     private final double ZEROY = 700;
+    //test
+    private final int STEPTHRESHOLD = 60;
     
     // BOT VARIABLES
     private boolean seed;
@@ -56,6 +58,8 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     private State state = State.WAIT_TO_MOVE;
     private double previous_distance;
     private final Shape shape;
+    //test
+    private int step = 0;
     
     // Constructor
     public Bot(boolean seed, boolean gradient_seed, double orientation_x, double orientation_y, Double2D location, Shape shape) {
@@ -104,8 +108,8 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         graphics.fillOval(x,y,w,h);
         // Show gradient
         graphics.setColor(Color.black);        
-        //graphics.drawString(Integer.toString(this.gradient), x+2, y+10);
-        graphics.drawString(this.location.toCoordinates(), x, y+10);
+        graphics.drawString(Integer.toString(this.gradient), x+2, y+10);
+        //graphics.drawString(this.location.toCoordinates(), x, y+10);
     }
         
     // Agent behavior
@@ -122,7 +126,10 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         Bag neighbors = env.field.getNeighborsWithinDistance(position, this.VISIBLE_DIST, false);
         neighbors.remove(this);
         
-        Bag neighbors_grad = env.field.getNeighborsWithinDistance(position, this.BOTSIZE+0.5, false);
+        Bag neighbors_start = env.field.getNeighborsWithinDistance(position, this.BOTSIZE*2, false);
+        neighbors_start.remove(this);
+        
+        Bag neighbors_grad = env.field.getNeighborsWithinDistance(position, this.BOTSIZE+1, false);
         neighbors_grad.remove(this);
         
         // Use locally unique ID, remove this line when using globally unique ID
@@ -130,20 +137,25 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         
         if(this.state != State.JOINED_SHAPE){
             // Perform gradient formation and try to localize
-            this.gradient = this.gradient_formation(neighbors_grad);
+            int newgrad = this.gradient_formation(neighbors_grad);
+            if(!((newgrad >= this.MAXGRAD) && (this.gradient < this.MAXGRAD))){  // EXTENSION -> prevent going back to maxgradient if you already have a gradient
+                this.gradient = newgrad;
+            }
+            //if(!this.isLocalized()){
             this.localization(neighbors, env);
+            //}
             
             //BEHAVIOR IN DIFFERENT STATES
             // Wait in the starting shape and observe neighbors to determine if bot can start moving
             if(this.state == State.WAIT_TO_MOVE && this.gradient < this.MAXGRAD){
-                if(this.no_moving_neighbors(neighbors)){
-                    int highest_grad = this.highest_gradient(neighbors);
+                if(this.no_moving_neighbors(neighbors_start)){
+                    int highest_grad = this.highest_gradient(neighbors_start);
                     if(this.gradient > highest_grad){
                         this.state = State.MOVE_WHILE_OUTSIDE;
                         this.move(env);
                     }
                     else if(this.gradient == highest_grad){
-                        ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors);
+                        ArrayList<Bot> same_gradient = this.find_same_gradient(neighbors_start);
                         int highest_id = this.highest_id(same_gradient);
                         if(this.ID > highest_id){
                             this.state = State.MOVE_WHILE_OUTSIDE;
@@ -241,12 +253,12 @@ public class Bot extends SimplePortrayal2D implements Steppable {
             if(this.at_least_three_noncollinear(localized_n)){
                 for(Bot n : localized_n){
                     // Measured distance
-                    double m = env.field.getObjectLocationAsDouble2D(this).distance(env.field.getObjectLocationAsDouble2D(n));// / this.BOTSIZE;                    
+                    double m = env.field.getObjectLocationAsDouble2D(this).distance(env.field.getObjectLocationAsDouble2D(n)) / this.BOTSIZE;                    
                     // Euclidian distance based on coordinate system of the swarm
                     double c = this.location.distance(n.getLocation());
                     // Vector components of unit vector from this bot to the neighbor
-                    double vx = (n.getLocation().getX() - this.location.getX())/c;
-                    double vy = (n.getLocation().getY() - this.location.getY())/c;
+                    double vx = (this.location.getX() - n.getLocation().getX())/c;
+                    double vy = (this.location.getY() - n.getLocation().getY())/c;
                     // Determine new location following this point
                     double nx = n.location.getX() +  m*vx;
                     double ny = n.location.getY() +  m*vy;
@@ -255,7 +267,10 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                     double y = this.location.getY() - (((this.location.getY() - ny)/4));
                     this.location = new Double2D(x, y);
                 }
-                this.localized = true;
+                this.step++;
+                if(this.step > this.STEPTHRESHOLD){
+                    this.localized = true;
+                }
             }  
         }
     }
@@ -301,6 +316,10 @@ public class Bot extends SimplePortrayal2D implements Steppable {
 
     public boolean isLocalized() {
         return localized;
+    }
+    
+    public boolean isSeed() {
+        return seed;
     }
     
     // Extra functions
