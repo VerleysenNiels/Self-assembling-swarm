@@ -27,7 +27,7 @@ public class Environment extends SimState{
     private static int BOTSIZE = 10;
     private static int NRROWS = 10; // 25;
     private static int NRCOLS = 10; // 40;
-    private static double middlex = 100;
+    private static double middlex = 400;
     private static double middley = 700;
     
     public Continuous2D field;

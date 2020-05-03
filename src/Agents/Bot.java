@@ -175,7 +175,6 @@ public class Bot extends SimplePortrayal2D implements Steppable {
             else if(this.state == State.MOVE_WHILE_INSIDE){
                 if(this.localized && !this.inside_shape()){
                     this.state = State.JOINED_SHAPE;
-                    System.out.println("I HAVE JOINED THE SHAPE");
                 }
                 else{
                     Bot closest = this.nearest_neighbor(position, neighbors, env);
@@ -184,7 +183,6 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                     }
                     else{
                         this.state = State.JOINED_SHAPE;
-                        System.out.println("I HAVE JOINED THE SHAPE");
                     }
                 }
             }
