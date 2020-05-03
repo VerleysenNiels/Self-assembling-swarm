@@ -41,7 +41,7 @@ public class Environment extends SimState{
         super.start();  // very important!  This resets and cleans out the Schedule.
         // Define pattern to assemble
         Shape shape = new Shape();
-        shape.rectangle(0, 0, 100, 100);
+        shape.rectangle(1, 1, 5, 20);
         
         // Add agents
         double stepsize = 2 * BOTSIZE;

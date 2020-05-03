@@ -34,7 +34,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     
     // BOT SETTINGS
     private final int MAXGRAD = 10000;
-    private final double VISIBLE_DIST = 30;
+    private final double VISIBLE_DIST = 70;
     private final int ID_SIZE = 100000;
     private final double MAX_DISTANCE = 500;
     private final double DESIRED_DISTANCE = 11;
@@ -406,7 +406,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         int highest = 0;
         for(Object n : neighbors){
             Bot neighbor = (Bot) n;
-            if(neighbor.getGradient() > highest){
+            if(neighbor.getGradient() > highest && !neighbor.has_joined_shape()){  // EXTENSION
                 highest = neighbor.getGradient();
             }
         }
@@ -418,7 +418,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         ArrayList<Bot> same_grad = new ArrayList<Bot>();
         for(Object n : neighbors){
             Bot neighbor = (Bot) n;
-            if(neighbor.getGradient() == this.gradient){
+            if(neighbor.getGradient() == this.gradient && !neighbor.has_joined_shape()){  // EXTENSION
                 same_grad.add(neighbor);
             }
         }

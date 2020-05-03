@@ -68,7 +68,7 @@ public class Shape {
             this.x_ranges.add(new ArrayList<int[]>());
             index++;
         }
-        for(int i = 0; i < sizey; i++){
+        for(int i = 0; i <= sizey; i++){
             ArrayList<int[]> l = new ArrayList<int[]>();
             l.add(new int[]{cornerx, (cornerx+sizex)});
             this.x_ranges.add(l);
