@@ -46,3 +46,11 @@ In this example the swarm needs to form a rectangle with two holes, the swarm fo
 ![Form the letter R](https://github.com/VerleysenNiels/Self-assembling-swarm/blob/master/Examples/R.gif)
 
 In this example the swarm needs to form the letter R.
+
+![Form two rectangles](https://github.com/VerleysenNiels/Self-assembling-swarm/blob/master/Examples/two_rectangles.gif)
+
+In this example we can see where the swarm fails. The target shape exists of two rectangles that are separated by two rows. The swarm only constructs the bottom one.
+
+![Form two rectangles close](https://github.com/VerleysenNiels/Self-assembling-swarm/blob/master/Examples/two_rectangles_close.gif)
+
+The target shape exists again of two rectangles, but this time they are separated by just a single row. The swarm builds a bridge on both sides and constructs both rectangles.
