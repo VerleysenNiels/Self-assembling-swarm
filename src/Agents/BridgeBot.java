@@ -212,7 +212,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
         // Part of a bridge
         if(this.state == State.JOINED_BRIDGE){
             this.bridgestep++;
-            if(this.bridgestep > 200 && this.startdissolving(neighbors)){
+            if(this.bridgestep > 50 && this.startdissolving(neighbors)){
                 this.dissolve = true;
             }
 
