@@ -66,6 +66,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
     private boolean dissolve = false;
     private boolean ybridge = false;
     private boolean xbridge = false;
+    private int bridgestep = 0;
     
     // Constructor
     public BridgeBot(boolean seed, boolean gradient_seed, double orientation_x, double orientation_y, Double2D location, Shape shape) {
@@ -142,7 +143,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
         // Use locally unique ID, remove this line when using globally unique ID
         this.check_id(neighbors, env);
         
-        if(this.state != State.JOINED_SHAPE){
+        if(this.state != State.JOINED_SHAPE && this.state != State.JOINED_BRIDGE){
             // Perform gradient formation and try to localize
             int newgrad = this.gradient_formation(neighbors_grad);
             if(!((newgrad >= this.MAXGRAD) && (this.gradient < this.MAXGRAD))){  // EXTENSION -> prevent going back to maxgradient if you already have a gradient
@@ -181,6 +182,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                     boolean y = this.inside_ybridge();
                     this.ybridge = y;
                     this.xbridge = !y;
+                    this.bridgestep = 0;
                 }
                 this.edge_follow(neighbors, env);
             }
@@ -197,6 +199,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                             boolean y = this.inside_ybridge();
                             this.ybridge = y;
                             this.xbridge = !y;
+                            this.bridgestep = 0;
                         }
                         this.edge_follow(neighbors, env);
                     }
@@ -204,19 +207,20 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                         this.state = State.JOINED_SHAPE;
                     }
                 }
+            }            
+        }
+        // Part of a bridge
+        if(this.state == State.JOINED_BRIDGE){
+            this.bridgestep++;
+            if(this.bridgestep > 200 && this.startdissolving(neighbors)){
+                this.dissolve = true;
             }
-            // Part of a bridge
-            else if(this.state == State.JOINED_BRIDGE){
-                if(this.startdissolving(neighbors)){
-                    this.dissolve = true;
-                }
-                
-                if(this.dissolve){
-                    if(this.min_bridge_gradient(neighbors)){
-                        this.state = State.MOVE_WHILE_OUTSIDE;
-                        this.ybridge = false;
-                        this.xbridge = false;
-                    }
+
+            if(this.dissolve){
+                if(this.min_bridge_gradient(neighbors) && this.no_moving_neighbors(neighbors)){
+                    this.state = State.MOVE_WHILE_OUTSIDE;
+                    this.ybridge = false;
+                    this.xbridge = false;
                 }
             }
         }
@@ -505,7 +509,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
             for(Object n : neighbors){
                 BridgeBot neighbor = (BridgeBot) n;
                 if(neighbor.isMoving()){
-                    if(Math.signum(this.orientation_y) != Math.signum(this.orientation_y)){
+                    if(Math.signum(neighbor.orientation_y) < 0){
                         start = true;
                     }
                 }
@@ -515,7 +519,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
             for(Object n : neighbors){
                 BridgeBot neighbor = (BridgeBot) n;
                 if(neighbor.isMoving()){
-                    if(Math.signum(this.orientation_x) != Math.signum(this.orientation_x)){
+                    if(Math.signum(neighbor.orientation_x) < 0){
                         start = true;
                     }
                 }
