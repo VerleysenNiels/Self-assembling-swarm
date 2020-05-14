@@ -5,6 +5,12 @@
  */
 package Shape;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -34,7 +40,96 @@ public class Shape {
         this.x_ranges = x_ranges;
     }
     
-    // Other constructors, maybe read from file or basic shapes
+    // Construct shape from file, this is slow
+    public Shape(String filename) {
+        this.y_ranges = new ArrayList<int[]>();
+        this.x_ranges = new ArrayList<ArrayList<int[]>>();
+        
+
+        // This will reference one line at a time
+        String line = null;
+
+        try {
+            // Init FileReader
+            FileReader fileReader = new FileReader(filename);
+
+            // Wrap FileReader in BufferedReader.
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            
+            // Determine startpoint
+            line = bufferedReader.readLine();
+            int startx = Integer.parseInt(line.split(",")[0]);
+            int y = Integer.parseInt(line.split(",")[1]);
+            
+            // Update xranges if y is not zero
+            int i = 0;
+            while(i < y){
+                ArrayList<int[]> l = new ArrayList<int[]>();
+                this.x_ranges.add(l);
+                i++;
+            }
+            
+            // Variables that keep information of a range over multiple rows
+            boolean yrange = false;
+            int yrange_start = 0;
+            
+            // Read file
+            while((line = bufferedReader.readLine()) != null) {
+                
+                // New xranges
+                ArrayList<int[]> l = new ArrayList<int[]>();
+                
+                boolean xrange = false;
+                boolean values = false;
+                int xrange_start = 0;               
+                
+                for (i=0; i < line.length(); i++){
+                    if((!xrange) && (line.charAt(i) == 'X')){
+                        // Range starts
+                        xrange_start = i + startx;
+                        xrange = true;
+                        values = true;
+                    }
+                    else if(xrange && (line.charAt(i) == 'O')){ //Always bound range with an O -> also on the end of a row and on the bottom row
+                        // Range ends
+                        l.add(new int[]{xrange_start, i + startx - 1});
+                        xrange = false;
+                    }                   
+                }
+                
+                // Add list to x_ranges
+                this.x_ranges.add(l);
+                
+                // If this row has values -> add to y_ranges
+                if(!yrange && values){
+                    // Range starts
+                    yrange_start = y;
+                    yrange = true;
+                }
+                else if(yrange && !values){
+                    // Range ends
+                    this.y_ranges.add(new int[]{yrange_start, y});
+                    yrange = false;
+                }
+                
+                // Move up one row
+                y++;
+            }   
+
+            // Close file
+            bufferedReader.close();
+        }
+        catch(FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + filename + "'");                
+        }
+        catch(IOException ex) {
+            System.out.println("Error reading file '" + filename + "'");                  
+            ex.printStackTrace();
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
     
     // Determines if a given point is inside the shape
     public boolean inside(int x, int y){

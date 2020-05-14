@@ -120,9 +120,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         
         Double2D position = env.field.getObjectLocationAsDouble2D(this);
         
-        // Bot can only see direct neighbors
-        // This is problematic in MASON as a field can only give back all bots within a given radius
-        // I therefore get all bots within the visible range of the bot and remove all bots that are not directly visible
+        // Determine bags of neighbors, there are different visible distances for different algorithms
         Bag neighbors = env.field.getNeighborsWithinDistance(position, this.VISIBLE_DIST, false);
         neighbors.remove(this);
         
@@ -145,7 +143,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
             this.localization(neighbors, env);
             //}
             
-            //BEHAVIOR IN DIFFERENT STATES
+            // BEHAVIOR IN DIFFERENT STATES
             // Wait in the starting shape and observe neighbors to determine if bot can start moving
             if(this.state == State.WAIT_TO_MOVE && this.gradient < this.MAXGRAD){
                 if(this.no_moving_neighbors(neighbors_start)){

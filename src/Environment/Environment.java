@@ -12,6 +12,7 @@ package Environment;
 
 import Agents.Bot;
 import Shape.Shape;
+import java.io.File;
 import sim.engine.*;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
@@ -40,8 +41,19 @@ public class Environment extends SimState{
     public void start() {
         super.start();  // very important!  This resets and cleans out the Schedule.
         // Define pattern to assemble
+        // Get files from Shapes/Using folder
+        File folder = new File("Shapes/Using");
+        File[] listOfFiles = folder.listFiles();
+        
+        // Standard rectangle, used when no file is given
         Shape shape = new Shape();
-        shape.rectangle(1, 1, 5, 5);
+        shape.rectangle(1, 1, 5, 20);
+        
+        // Check if there is a file
+        if(listOfFiles.length > 0){
+            // Use first file
+            shape = new Shape(listOfFiles[0].getPath());
+        }
         
         // Add agents
         double stepsize = 2 * BOTSIZE;
