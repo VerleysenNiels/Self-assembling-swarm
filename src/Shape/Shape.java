@@ -27,24 +27,33 @@ public class Shape {
     
     private ArrayList<int[]> y_ranges;
     private ArrayList<ArrayList<int[]>> x_ranges;
+    
+    // ADD BRIDGES
+    private ArrayList<int[]> y_bridges;
+    private ArrayList<int[]> x_bridges;
 
     // Constructs empty shape
     public Shape() {
         this.y_ranges = new ArrayList<int[]>();
         this.x_ranges = new ArrayList<ArrayList<int[]>>();
+        this.y_bridges = new ArrayList<int[]>();
+        this.x_bridges = new ArrayList<int[]>();
     }
     
     // Constructor with given ranges
     public Shape(ArrayList<int[]> y_ranges, ArrayList<ArrayList<int[]>> x_ranges) {
         this.y_ranges = y_ranges;
         this.x_ranges = x_ranges;
+        this.y_bridges = new ArrayList<int[]>();
+        this.x_bridges = new ArrayList<int[]>();
     }
     
     // Construct shape from file, this is slow
     public Shape(String filename) {
         this.y_ranges = new ArrayList<int[]>();
         this.x_ranges = new ArrayList<ArrayList<int[]>>();
-        
+        this.y_bridges = new ArrayList<int[]>();
+        this.x_bridges = new ArrayList<int[]>();
 
         // This will reference one line at a time
         String line = null;
@@ -94,7 +103,14 @@ public class Shape {
                         // Range ends
                         l.add(new int[]{xrange_start, i + startx - 1});
                         xrange = false;
-                    }                   
+                    }
+                    
+                    if(line.charAt(i) == 'U'){  // Bridge going up
+                        this.y_bridges.add(new int[]{i + startx, y});
+                    }
+                    else if(line.charAt(i) == 'R'){  // Bridge going to the right
+                        this.x_bridges.add(new int[]{i + startx, y});
+                    }
                 }
                 
                 // Add list to x_ranges
@@ -168,5 +184,30 @@ public class Shape {
             l.add(new int[]{cornerx, (cornerx+sizex)});
             this.x_ranges.add(l);
         }
+    }
+    
+    // EXTENSION FOR WORKING WITH BRIDGEBOTS
+    public boolean inside_bridge(int x, int y) {
+        return this.inside_xbridge(x, y) || this.inside_ybridge(x, y);
+    }
+
+    public boolean inside_ybridge(int x, int y) {
+        boolean inside = false;
+        for(int[] bridgeloc : this.y_bridges){
+            if(bridgeloc[0] == x && bridgeloc[1] == y){
+                inside = true;
+            }
+        }
+        return inside;
+    }
+    
+    public boolean inside_xbridge(int x, int y) {
+        boolean inside = false;
+        for(int[] bridgeloc : this.x_bridges){
+            if(bridgeloc[0] == x && bridgeloc[1] == y){
+                inside = true;
+            }
+        }
+        return inside;
     }
 }

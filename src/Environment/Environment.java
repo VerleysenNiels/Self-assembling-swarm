@@ -11,6 +11,7 @@ package Environment;
  */
 
 import Agents.Bot;
+import Agents.BridgeBot;
 import Shape.Shape;
 import java.io.File;
 import sim.engine.*;
@@ -38,6 +39,7 @@ public class Environment extends SimState{
         this.field = new Continuous2D(this.DISCRETIZATION, this.WIDTH, this.HEIGHT);
     }   
     
+    // SET TO USE BRIDGEBOTS
     public void start() {
         super.start();  // very important!  This resets and cleans out the Schedule.
         // Define pattern to assemble
@@ -58,27 +60,27 @@ public class Environment extends SimState{
         // Add agents
         double stepsize = 2 * BOTSIZE;
         // Add SEED bots
-        Bot seed1 = new Bot(true, true, 0.0, -1.0, new Double2D(-0.5, 0.1), shape); 
+        BridgeBot seed1 = new BridgeBot(true, true, 0.0, -1.0, new Double2D(-0.5, 0.1), shape); 
         this.schedule.scheduleRepeating(seed1);
         this.field.setObjectLocation(seed1, new Double2D((-0.5 * this.BOTSIZE) + middlex, (-0.1 * this.BOTSIZE) + middley));
         
-        Bot seed2 = new Bot(true, false, 0.0, -1.0, new Double2D(0.5, 0.0), shape); 
+        BridgeBot seed2 = new BridgeBot(true, false, 0.0, -1.0, new Double2D(0.5, 0.0), shape); 
         this.schedule.scheduleRepeating(seed2);
         this.field.setObjectLocation(seed2, new Double2D((0.5 * this.BOTSIZE) + middlex, 0.0 + middley));
         
-        Bot seed3 = new Bot(true, false, 0.0, -1.0, new Double2D(0.1, 1.0), shape); 
+        BridgeBot seed3 = new BridgeBot(true, false, 0.0, -1.0, new Double2D(0.1, 1.0), shape); 
         this.schedule.scheduleRepeating(seed3);
         this.field.setObjectLocation(seed3, new Double2D((0.1 * this.BOTSIZE) + middlex, (-1.0 * this.BOTSIZE) + middley));
         
-        Bot seed4 = new Bot(true, false, 0.0, -1.0, new Double2D(-0.02, -1.0), shape); 
+        BridgeBot seed4 = new BridgeBot(true, false, 0.0, -1.0, new Double2D(-0.02, -1.0), shape); 
         this.schedule.scheduleRepeating(seed4);
         this.field.setObjectLocation(seed4, new Double2D((-0.02 * this.BOTSIZE) + middlex, (1.0 * this.BOTSIZE) + middley));
         
         // Add bots to the environment
-        Bot b;
+        BridgeBot b;
         for(int row = 1 ; row <= NRROWS ; row++){
             for(int col = 1 ; col <= NRCOLS ; col++){
-                b = new Bot(false, false, 0.0, -1.0, new Double2D(0.0, 0.0), shape); 
+                b = new BridgeBot(false, false, 0.0, -1.0, new Double2D(0.0, 0.0), shape); 
                 this.schedule.scheduleRepeating(b);
                 this.field.setObjectLocation(b, new Double2D((double)(col * this.BOTSIZE + middlex), (double)(row * this.BOTSIZE  + middley))); 
             }
