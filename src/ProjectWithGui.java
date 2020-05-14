@@ -40,7 +40,7 @@ public class ProjectWithGui extends GUIState{
     }
     
     public static String getName() { return "Self assembling swarm"; }
-    public static String getInfo() { return "In this simulation a swarm of robots try to draw a given shape by moving around the group of robots that are not moving. The bots in this simulation have different colors based on their shape. Seed robots have a green color. Bots that have joined the state are red, those that are moving outside the shape are yellow and the bots that are moving inside the shape are orange. The other bots are waiting to move and are colored blue."; }
+    public static String getInfo() { return "<p>In this simulation a swarm of robots try to draw a given shape by moving around the group of robots that are not moving. The bots in this simulation have different colors based on their shape. Seed robots have a green color. Bots that have joined the state are red, those that are moving outside the shape are yellow and the bots that are moving inside the shape are orange. The other bots are waiting to move and are colored blue.</p> <p>Shape is determined by the file in Shapes/Using. Some example shapes are given in the Shapes folder, these can be used by replacing the file in Shapes/Using. You can also define your own shape with a textfile that contains the coordinates of the left bottom corner (usually \"1,1\") and then each following row marks the coordinates that are in the shape with X and outside with O. Each of these lines should be ended with an O and the final line should only contain O characters.</p>"; }
 
     public void start() {
         super.start();
