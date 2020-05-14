@@ -25,7 +25,7 @@ New shapes can easily be defined by creating a text file and filling it in accor
 * The final line should only contain O characters.
 
 ## Examples
-In the first tests I only tried to make the swarm form rectangles. The correct shapes are formed, although they seem to be rotated a bit.
+In the first tests I only tried to make the swarm form rectangles. The correct shapes are formed, although they seem to be rotated a bit. I then gradually increased the complexity of the shape. The swarm was always able to form the target shape. I then moved over to multiple target shapes that are not connected. The animated results can be found below and a more in depth description is given in the paper.
 
 ![Form a rectangle](https://github.com/VerleysenNiels/Self-assembling-swarm/blob/master/Examples/example_rectangle_cropped.gif)
 
