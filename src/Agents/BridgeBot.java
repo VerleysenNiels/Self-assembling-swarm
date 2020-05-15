@@ -149,9 +149,9 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
             if(!((newgrad >= this.MAXGRAD) && (this.gradient < this.MAXGRAD))){  // EXTENSION -> prevent going back to maxgradient if you already have a gradient
                 this.gradient = newgrad;
             }
-            //if(!this.isLocalized()){
+            
             this.localization(neighbors, env);
-            //}
+            
             
             // BEHAVIOR IN DIFFERENT STATES
             // Wait in the starting shape and observe neighbors to determine if bot can start moving
@@ -177,7 +177,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                 if(this.localized && this.inside_shape()){
                     this.state = State.MOVE_WHILE_INSIDE;
                 }
-                if(this.localized && this.inside_bridge()){
+                if(this.localized && this.inside_bridge() && this.bridgestep > 100){
                     this.state = State.JOINED_BRIDGE;
                     boolean y = this.inside_ybridge();
                     this.ybridge = y;
@@ -185,6 +185,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                     this.bridgestep = 0;
                 }
                 this.edge_follow(neighbors, env);
+                this.bridgestep++;
             }
             // Edge following inside the shape
             else if(this.state == State.MOVE_WHILE_INSIDE){
@@ -194,7 +195,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                 else{
                     BridgeBot closest = this.nearest_neighbor(position, neighbors, env);
                     if(closest != null && closest.getGradient() < this.gradient){
-                        if(this.localized && this.inside_bridge()){
+                        if(this.localized && this.inside_bridge() && this.bridgestep > 100){
                             this.state = State.JOINED_BRIDGE;
                             boolean y = this.inside_ybridge();
                             this.ybridge = y;
@@ -202,6 +203,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                             this.bridgestep = 0;
                         }
                         this.edge_follow(neighbors, env);
+                        this.bridgestep++;
                     }
                     else{
                         this.state = State.JOINED_SHAPE;
@@ -221,6 +223,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                     this.state = State.MOVE_WHILE_OUTSIDE;
                     this.ybridge = false;
                     this.xbridge = false;
+                    this.bridgestep = 0;
                 }
             }
         }
@@ -356,6 +359,16 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
     public boolean isSeed() {
         return seed;
     }
+
+    public double getOrientation_x() {
+        return orientation_x;
+    }
+
+    public double getOrientation_y() {
+        return orientation_y;
+    }
+    
+    
     
     // Extra functions
     // Check if there are at least three noncollinear bots in the given list
@@ -509,7 +522,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
             for(Object n : neighbors){
                 BridgeBot neighbor = (BridgeBot) n;
                 if(neighbor.isMoving()){
-                    if(Math.signum(neighbor.orientation_y) < 0){
+                    if(Math.signum(neighbor.getOrientation_y()) < 0){
                         start = true;
                     }
                 }
@@ -519,7 +532,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
             for(Object n : neighbors){
                 BridgeBot neighbor = (BridgeBot) n;
                 if(neighbor.isMoving()){
-                    if(Math.signum(neighbor.orientation_x) < 0){
+                    if(Math.signum(neighbor.getOrientation_x()) < 0){
                         start = true;
                     }
                 }
