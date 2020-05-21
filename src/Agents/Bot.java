@@ -1,13 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Agents;
 
 /**
  *
  * @author Niels
+ * 
+ * This file contains the behavior of an agent for the original system.
+ * This file is a bit long and can be divided in multiple parts:
+ *      - Definition of the different states
+ *      - General parameters of the agent
+ *      - Constructor
+ *      - Method to draw the agent in the GUI
+ *      - State based behavior
+ *      - Main algorithms used in the state based behavior
+ *      - Functions used in these algorithms 
+ * 
  */
 
 import Environment.Environment;
@@ -43,7 +49,6 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     private final int BOTSIZE = 10;
     private final double ZEROX = 100;
     private final double ZEROY = 700;
-    //test
     private final int STEPTHRESHOLD = 60;
     
     // BOT VARIABLES
@@ -58,7 +63,6 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     private State state = State.WAIT_TO_MOVE;
     private double previous_distance;
     private final Shape shape;
-    //test
     private int step = 0;
     
     // Constructor
@@ -79,10 +83,12 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         }
     }
     
+    // Bot can draw itself in the GUI
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
         final double width = info.draw.width * this.BOTSIZE;
         final double height = info.draw.height * this.BOTSIZE;
-
+        
+        // Color is based on the state
         if (this.seed){
             graphics.setColor(Color.green);;
         }
@@ -109,15 +115,15 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         // Show gradient
         graphics.setColor(Color.black);        
         graphics.drawString(Integer.toString(this.gradient), x+2, y+10);
-        //graphics.drawString(this.location.toCoordinates(), x, y+10);
     }
         
     // Agent behavior
     @Override
     public void step(SimState state) {    
-        // GET ENVIRONMENT STATE
+        // Get environment state
         Environment env = (Environment)state;
         
+        // Get your own position
         Double2D position = env.field.getObjectLocationAsDouble2D(this);
         
         // Determine bags of neighbors, there are different visible distances for different algorithms
@@ -133,17 +139,17 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         // Use locally unique ID, remove this line when using globally unique ID
         this.check_id(neighbors, env);
         
+        // BEHAVIOR IN DIFFERENT STATES
         if(this.state != State.JOINED_SHAPE){
-            // Perform gradient formation and try to localize
+            // Perform gradient formation
             int newgrad = this.gradient_formation(neighbors_grad);
             if(!((newgrad >= this.MAXGRAD) && (this.gradient < this.MAXGRAD))){  // EXTENSION -> prevent going back to maxgradient if you already have a gradient
                 this.gradient = newgrad;
             }
-            //if(!this.isLocalized()){
-            this.localization(neighbors, env);
-            //}
             
-            // BEHAVIOR IN DIFFERENT STATES
+            // Try to localize
+            this.localization(neighbors, env);
+            
             // Wait in the starting shape and observe neighbors to determine if bot can start moving
             if(this.state == State.WAIT_TO_MOVE && this.gradient < this.MAXGRAD){
                 if(this.no_moving_neighbors(neighbors_start)){
@@ -213,6 +219,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
             this.rotate(true);
         }
         
+        // Move forward if possible
         if(this.move(env)){
             this.previous_distance = dist;
         }
@@ -220,10 +227,13 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     
     // Gradient formation
     private int gradient_formation(Bag neighbors) {
+        // Seeds determine the origin of the gradient
         if(seed){
           return 0;  
         }
+        // Regular agent determines it gradient by setting its gradient as the lowest visible gradient plus one
         else{
+            // Find smallest visible gradient
             int new_gradient = this.MAXGRAD; 
             for(Object n : neighbors){
                 Bot neighbor = (Bot) n;
@@ -231,6 +241,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                     new_gradient = neighbor.getGradient();
                 }
             }
+            // Set new gradient
             int grad = new_gradient+1;
             return grad;
         }
@@ -239,6 +250,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     // Localization
     private void localization(Bag neighbors, Environment env) {
         if(!seed){
+            // Get visible neighbors that are localized and not moving
             ArrayList<Bot> localized_n = new ArrayList<Bot>(); 
             for(Object n : neighbors){
                 Bot neighbor = (Bot) n;
@@ -246,6 +258,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                     localized_n.add(neighbor);
                 }
             }
+            // Location can be determined if there are at least three noncollinear agents
             if(this.at_least_three_noncollinear(localized_n)){
                 for(Bot n : localized_n){
                     // Measured distance
@@ -279,6 +292,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
             this.ID = env.random.nextInt(this.ID_SIZE);
             this.generated_ID = true;
         }
+        // Check if ID is unique
         for(Object n : neighbors){
             Bot neighbor = (Bot) n;
             
@@ -286,6 +300,7 @@ public class Bot extends SimplePortrayal2D implements Steppable {
                 this.generated_ID = false;
             }    
         } 
+        // Get a new ID if not unique
         if(!this.generated_ID){
             this.ID = env.random.nextInt(this.ID_SIZE);
             this.generated_ID = true;
@@ -293,7 +308,6 @@ public class Bot extends SimplePortrayal2D implements Steppable {
     }
     
     // Getters
-
     public Boolean has_joined_shape() {
         return this.state == State.JOINED_SHAPE;
     }
@@ -329,13 +343,16 @@ public class Bot extends SimplePortrayal2D implements Steppable {
         boolean noncollinear = false;
         int third = 2;
         
+        // Get difference between first two agents in the list
         double ydiff1 = localized_n.get(1).getLocation().getY() - localized_n.get(0).getLocation().getY();
         double xdiff1 = localized_n.get(1).getLocation().getX() - localized_n.get(0).getLocation().getX();
         
+        // Search for a third agent that is not on the same line as these two first agents
         while(!noncollinear && third < localized_n.size()){
             double ydiff = localized_n.get(third).getLocation().getY() - localized_n.get(0).getLocation().getY();
             double xdiff = localized_n.get(third).getLocation().getX() - localized_n.get(0).getLocation().getX();
-            double det = xdiff1*ydiff - ydiff1*xdiff; // Determinant of matrix of vector coordinates -> is zero when colinear
+            // Determinant of matrix of vector coordinates -> is zero when collinear
+            double det = xdiff1*ydiff - ydiff1*xdiff; 
             noncollinear = (det != 0);
             third++;
         }

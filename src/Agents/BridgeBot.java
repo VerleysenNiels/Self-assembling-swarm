@@ -8,6 +8,18 @@ package Agents;
 /**
  *
  * @author Niels
+ *  
+ * This file contains the behavior of an agent for the extended system.
+ * This file is a bit long and can be divided in multiple parts:
+ *      - Definition of the different states
+ *      - General parameters of the agent
+ *      - Constructor
+ *      - Method to draw the agent in the GUI
+ *      - State based behavior
+ *      - Main algorithms used in the state based behavior
+ *      - Functions used in these algorithms 
+ *      - Extra functions for bridge forming behavior
+ * 
  */
 
 import Environment.Environment;
@@ -45,7 +57,6 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
     private final int BOTSIZE = 10;
     private final double ZEROX = 100;
     private final double ZEROY = 700;
-    //test
     private final int STEPTHRESHOLD = 60;
     
     // BOT VARIABLES
@@ -60,8 +71,8 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
     private State state = State.WAIT_TO_MOVE;
     private double previous_distance;
     private final Shape shape;
-    //test
     private int step = 0;
+    
     //Extension for bridge formation
     private boolean dissolve = false;
     private boolean ybridge = false;
@@ -86,10 +97,12 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
         }
     }
     
+    // Bot can draw itself in the GUI
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
         final double width = info.draw.width * this.BOTSIZE;
         final double height = info.draw.height * this.BOTSIZE;
 
+        // Color is based on the state
         if (this.seed){
             graphics.setColor(Color.green);;
         }
@@ -143,6 +156,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
         // Use locally unique ID, remove this line when using globally unique ID
         this.check_id(neighbors, env);
         
+        // BEHAVIOR IN DIFFERENT STATES
         if(this.state != State.JOINED_SHAPE && this.state != State.JOINED_BRIDGE){
             // Perform gradient formation and try to localize
             int newgrad = this.gradient_formation(neighbors_grad);
@@ -150,10 +164,9 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                 this.gradient = newgrad;
             }
             
+            // Try to localize
             this.localization(neighbors, env);
             
-            
-            // BEHAVIOR IN DIFFERENT STATES
             // Wait in the starting shape and observe neighbors to determine if bot can start moving
             if(this.state == State.WAIT_TO_MOVE && this.gradient < this.MAXGRAD){
                 if(this.no_moving_neighbors(neighbors_start)){
@@ -213,11 +226,15 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
         }
         // Part of a bridge
         if(this.state == State.JOINED_BRIDGE){
+            // Count amount of steps inside the bridge
             this.bridgestep++;
+            
+            // Check if bridge should be broken down
             if(this.bridgestep > 50 && this.startdissolving(neighbors)){
                 this.dissolve = true;
             }
-
+            
+            // Break down bridge
             if(this.dissolve){
                 if(this.min_bridge_gradient(neighbors) && this.no_moving_neighbors(neighbors)){
                     this.state = State.MOVE_WHILE_OUTSIDE;
@@ -255,6 +272,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
             this.rotate(true);
         }
         
+        // Move forward if possible
         if(this.move(env)){
             this.previous_distance = dist;
         }
@@ -262,10 +280,13 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
     
     // Gradient formation
     private int gradient_formation(Bag neighbors) {
+        // Seeds determine the origin of the gradient
         if(seed){
           return 0;  
         }
+        // Regular agent determines it gradient by setting its gradient as the lowest visible gradient plus one
         else{
+            // Find smallest visible gradient
             int new_gradient = this.MAXGRAD; 
             for(Object n : neighbors){
                 BridgeBot neighbor = (BridgeBot) n;
@@ -273,6 +294,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                     new_gradient = neighbor.getGradient();
                 }
             }
+            // Set new gradient
             int grad = new_gradient+1;
             return grad;
         }
@@ -281,6 +303,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
     // Localization
     private void localization(Bag neighbors, Environment env) {
         if(!seed){
+            // Get visible neighbors that are localized and not moving
             ArrayList<BridgeBot> localized_n = new ArrayList<BridgeBot>(); 
             for(Object n : neighbors){
                 BridgeBot neighbor = (BridgeBot) n;
@@ -288,6 +311,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                     localized_n.add(neighbor);
                 }
             }
+            // Location can be determined if there are at least three noncollinear agents
             if(this.at_least_three_noncollinear(localized_n)){
                 for(BridgeBot n : localized_n){
                     // Measured distance
@@ -321,6 +345,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
             this.ID = env.random.nextInt(this.ID_SIZE);
             this.generated_ID = true;
         }
+        // Check if ID is unique
         for(Object n : neighbors){
             BridgeBot neighbor = (BridgeBot) n;
             
@@ -328,6 +353,7 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
                 this.generated_ID = false;
             }    
         } 
+        // Get a new ID if not unique
         if(!this.generated_ID){
             this.ID = env.random.nextInt(this.ID_SIZE);
             this.generated_ID = true;
@@ -335,7 +361,6 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
     }
     
     // Getters
-
     public Boolean has_joined_shape() {
         return this.state == State.JOINED_SHAPE;
     }
@@ -381,9 +406,11 @@ public class BridgeBot extends SimplePortrayal2D implements Steppable {
         boolean noncollinear = false;
         int third = 2;
         
+        // Get difference between first two agents in the list
         double ydiff1 = localized_n.get(1).getLocation().getY() - localized_n.get(0).getLocation().getY();
         double xdiff1 = localized_n.get(1).getLocation().getX() - localized_n.get(0).getLocation().getX();
         
+        // Search for a third agent that is not on the same line as these two first agents
         while(!noncollinear && third < localized_n.size()){
             double ydiff = localized_n.get(third).getLocation().getY() - localized_n.get(0).getLocation().getY();
             double xdiff = localized_n.get(third).getLocation().getX() - localized_n.get(0).getLocation().getX();
